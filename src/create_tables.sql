@@ -8,11 +8,6 @@ USE CATALOG ${catalog};
 
 -- COMMAND ----------
 
--- TODO testing only! remove once code is ready
-DROP SCHEMA ${schema} cascade
-
--- COMMAND ----------
-
 CREATE SCHEMA IF NOT EXISTS ${schema};
 
 -- COMMAND ----------
