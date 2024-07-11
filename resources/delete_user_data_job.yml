@@ -1,0 +1,36 @@
+resources:
+  jobs:
+    cost_monitoring_delete_user_data_job:
+      name: cost_monitoring_delete_user_data_job_${bundle.target}
+
+      parameters:
+        - name: user_name
+          default: empty
+
+      # overwrite the default run_as from the bundle
+      #run_as:
+      #  service_principal_name: xxx
+
+      email_notifications:
+        on_failure:
+          - marcin.wojtyczka@databricks.com
+
+      tasks:
+        - task_key: delete_user_data
+          job_cluster_key: job_cluster
+          existing_cluster_id: 1115-130834-ms4m0yv
+          notebook_task:
+            notebook_path: ../src/delete_user_data.sql
+            source: WORKSPACE
+            base_parameters:
+              catalog: "main"
+              schema: "hackaton_cost_monitoring_v2"
+
+      job_clusters:
+        - job_cluster_key: job_cluster
+          new_cluster:
+            spark_version: 14.3.x-scala2.12
+            node_type_id: Standard_DS3_v2
+            autoscale:
+              min_workers: 1
+              max_workers: 2

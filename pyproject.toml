@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "cost-monitoring"
+version = "0.0.1"
+description = "Application for calculating per-user cost of running SQL Warehouses"
+authors = ["Marcin Wojtyczka <marcin.wojtyczka@databricks.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.test.dependencies]
+pyspark = "3.5.0"
+pytest = "^8.0.1"
+pytest-cov = "^4.0.0"
+pytest-spark = "^0.6.0"
+chispa = "^0.9.2"
+databricks-sdk = "^0.20.0"
+databricks-connect = "14.2.1" # cannot be higher than DBR version!
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+main = "cost_monitoring.main:main"

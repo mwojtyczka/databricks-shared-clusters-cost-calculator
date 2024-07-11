@@ -1,0 +1,59 @@
+resources:
+  jobs:
+    cost_monitoring_job:
+      name: cost_monitoring_job_${bundle.target}
+
+      # overwrite the default run_as from the bundle
+      #run_as:
+      #  service_principal_name: xxx
+
+      schedule:
+        # Run every day at 2:00 AM
+        quartz_cron_expression: '37 0 2 * * ?'
+        timezone_id: Europe/Amsterdam
+
+      email_notifications:
+        on_failure:
+          - marcin.wojtyczka@databricks.com
+
+      tasks:
+        - task_key: calculate_daily_costs
+          job_cluster_key: job_cluster
+          existing_cluster_id: 1115-130834-ms4m0yv
+          notebook_task:
+            notebook_path: ../src/calculate_daily_costs.py
+            source: WORKSPACE
+            base_parameters:
+              catalog: "main"
+              schema: "hackaton_cost_monitoring_v2"
+
+#          python_wheel_task:
+#            package_name: cost_monitoring
+#            entry_point: main
+#            named_parameters:
+#              catalog: "main"
+#              schema: "hackaton_cost_monitoring_v2"
+#          libraries:
+#            - whl: ../dist/*.whl
+
+        - task_key: calculate_monthly_costs
+          #job_cluster_key: job_cluster
+          existing_cluster_id: 1115-130834-ms4m0yv
+          depends_on:
+            - task_key: calculate_daily_costs
+          notebook_task:
+            notebook_path: ../src/calculate_monthly_costs.py
+            source: WORKSPACE
+            base_parameters:
+              catalog: "main"
+              schema: "hackaton_cost_monitoring_v2"
+
+      job_clusters:
+        - job_cluster_key: job_cluster
+          new_cluster:
+            spark_version: 14.3.x-scala2.12
+            node_type_id: Standard_DS3_v2
+            autoscale:
+              min_workers: 1
+              max_workers: 2
+
