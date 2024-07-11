@@ -1,4 +1,4 @@
-# This is a Databricks asset bundle definition for cost_monitoring_poc_project.
+# This is a Databricks asset bundle definition for shared clusters cost allocation solution.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
 bundle:
   name: cost_monitoring
@@ -12,8 +12,9 @@ artifacts:
 include:
   - resources/*.yml
 
-variable:
-  user_name: marcin.wojtyczka@databricks.com
+variables:
+  user_name:
+    default: marcin.wojtyczka@databricks.com
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
@@ -34,8 +35,8 @@ targets:
     mode: production
     workspace:
       host: https://e2-dogfood.staging.cloud.databricks.com/
-      root_path: /Users/${variables.user_name}/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Users/${var.user_name}/.bundle/${bundle.name}/${bundle.target}
     run_as:
       # We could also use a service principal here,
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
-      user_name: ${variables.user_name}
+      user_name: ${var.user_name}

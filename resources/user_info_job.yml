@@ -1,7 +1,7 @@
 resources:
   jobs:
-    cost_monitoring_user_info_job:
-      name: cost_monitoring_user_info_job_${bundle.target}
+    clusters_cost_allocation_user_info_job:
+      name: clusters_cost_allocation_user_info_job_${bundle.target}
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -18,7 +18,7 @@ resources:
 
       tasks:
         - task_key: user_info
-          job_cluster_key: job_cluster
+          #job_cluster_key: job_cluster
           existing_cluster_id: 1115-130834-ms4m0yv
           notebook_task:
             notebook_path: ../src/fetch_user_info.py
@@ -31,7 +31,7 @@ resources:
         - job_cluster_key: job_cluster
           new_cluster:
             spark_version: 14.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
+            node_type_id: i3.xlarge
             autoscale:
               min_workers: 1
-              max_workers: 2
+              max_workers: 1

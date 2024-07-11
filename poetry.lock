@@ -240,13 +240,13 @@ sql = ["numpy (>=1.15)", "pandas (>=1.0.5)", "pyarrow (>=4.0.0)"]
 
 [[package]]
 name = "databricks-sdk"
-version = "0.20.0"
+version = "0.29.0"
 description = "Databricks SDK for Python (Beta)"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "databricks-sdk-0.20.0.tar.gz", hash = "sha256:55a129598a3274bbda38e46174a272874338c0ac5c16adf7f54c27c0c9c4b29c"},
-    {file = "databricks_sdk-0.20.0-py3-none-any.whl", hash = "sha256:0988c20e4f666c19fa703424a21b61f774443702291b89b0e50b28ab86ab8863"},
+    {file = "databricks-sdk-0.29.0.tar.gz", hash = "sha256:23016df608bb025548582d378f94af2ea312c0d77250ac14aa57d1f863efe88c"},
+    {file = "databricks_sdk-0.29.0-py3-none-any.whl", hash = "sha256:3e08578f4128f759a6a9bba2c836ec32a4cff37fb594530209ab92f2534985bd"},
 ]
 
 [package.dependencies]
@@ -254,7 +254,7 @@ google-auth = ">=2.0,<3.0"
 requests = ">=2.28.1,<3"
 
 [package.extras]
-dev = ["autoflake", "ipython", "ipywidgets", "isort", "pycodestyle", "pyfakefs", "pytest", "pytest-cov", "pytest-mock", "pytest-xdist", "requests-mock", "wheel", "yapf"]
+dev = ["autoflake", "databricks-connect", "ipython", "ipywidgets", "isort", "pycodestyle", "pyfakefs", "pytest", "pytest-cov", "pytest-mock", "pytest-rerunfailures", "pytest-xdist", "requests-mock", "wheel", "yapf"]
 notebook = ["ipython (>=8,<9)", "ipywidgets (>=8,<9)"]
 
 [[package]]
@@ -861,4 +861,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d86e9e86770ee6deb8c6590521f5d0b9a2179d92640730bbfe7d79f358d859cf"
+content-hash = "c3392a7c5c916c97ef1bdf28becced47c48a8520466909255eb6c2c0f6e1e3e2"
