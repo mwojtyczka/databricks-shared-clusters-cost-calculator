@@ -1,7 +1,7 @@
 resources:
   jobs:
     clusters_cost_allocation_job:
-      name: clusters_cost_allocation_${bundle.target}
+      name: clusters_cost_allocation
 
       # overwrite the default run_as from the bundle
       #run_as:

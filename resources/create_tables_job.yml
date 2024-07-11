@@ -1,7 +1,7 @@
 resources:
   jobs:
     clusters_cost_allocation_create_tables_job:
-      name: clusters_cost_allocation_create_tables_${bundle.target}
+      name: clusters_cost_allocation_create_tables
 
       # overwrite the default run_as from the bundle
       #run_as:
