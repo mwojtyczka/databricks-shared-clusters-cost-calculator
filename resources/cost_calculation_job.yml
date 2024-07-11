@@ -1,7 +1,7 @@
 resources:
   jobs:
     clusters_cost_allocation_job:
-      name: clusters_cost_allocation
+      name: "Clusters Cost Allocation"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -28,7 +28,7 @@ resources:
               schema: "billing_clusters_cost_allocation"
 
 #          python_wheel_task:
-#            package_name: cost_monitoring
+#            package_name: clusters_cost_allocation
 #            entry_point: main
 #            named_parameters:
 #              catalog: "main"

@@ -21,7 +21,7 @@ To accomplish this, system tables and numerous metrics provided by query history
 
     This deploys everything that's defined for this project.
     For example, the default template would deploy a job called
-    `[dev yourname] cost_monitoring_job` to your workspace.
+    `[dev yourname] Clusters Cost Allocation` to your workspace.
     You can find that job by opening your workpace and clicking on **Workflows**.
 
 4. Similarly, to deploy a production copy, type:
@@ -30,7 +30,7 @@ To accomplish this, system tables and numerous metrics provided by query history
    ```
 
    Note that the default job from the template has a schedule that runs every day
-   (defined in resources/cost_monitoring_job.yml). The schedule
+   (defined in resources/cost_calculation_job.yml). The schedule
    is paused when deploying in development mode (see
    https://docs.databricks.com/dev-tools/bundles/deployment-modes.html).
 

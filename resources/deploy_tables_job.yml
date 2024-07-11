@@ -1,27 +1,22 @@
 resources:
   jobs:
-    clusters_cost_allocation_user_info_job:
-      name: clusters_cost_allocation_user_info
+    clusters_cost_allocation_create_tables_job:
+      name: "Clusters Cost Allocation - Deploy Tables"
 
       # overwrite the default run_as from the bundle
       #run_as:
       #  service_principal_name: xxx
-
-      schedule:
-        # Run every day at 01:00 AM
-        quartz_cron_expression: '37 0 1 * * ?'
-        timezone_id: Europe/Amsterdam
 
       email_notifications:
         on_failure:
           - marcin.wojtyczka@databricks.com
 
       tasks:
-        - task_key: user_info
+        - task_key: create_tables
           #job_cluster_key: job_cluster
           existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
-            notebook_path: ../src/fetch_user_info.py
+            notebook_path: ../src/create_tables.sql
             source: WORKSPACE
             base_parameters:
               catalog: "main"

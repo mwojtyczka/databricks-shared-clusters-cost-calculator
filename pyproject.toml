@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "cost-monitoring"
+name = "clusters-cost-allocation"
 version = "0.0.1"
-description = "Application for calculating per-user cost of running SQL Warehouses"
+description = "Application for granular cost allocation for SQL Warehouses"
 authors = ["Marcin Wojtyczka <marcin.wojtyczka@databricks.com>"]
 readme = "README.md"
 
@@ -22,4 +22,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-main = "cost_monitoring.main:main"
+main = "clusters_cost_allocation.main:main"

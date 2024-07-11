@@ -2,7 +2,7 @@
 
 # COMMAND ----------
 
-from cost_monitoring.main import calculate_monthly_costs
+from clusters_cost_allocation.main import calculate_monthly_costs
 
 catalog = dbutils.widgets.get("catalog")
 schema = dbutils.widgets.get("schema")

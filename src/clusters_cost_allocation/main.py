@@ -1,5 +1,5 @@
 import argparse
-from cost_monitoring.cost_monitoring import *
+from clusters_cost_allocation.cost_calculator import *
 
 
 spark = SparkSession.builder.getOrCreate()
