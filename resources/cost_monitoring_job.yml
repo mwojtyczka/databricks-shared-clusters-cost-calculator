@@ -32,7 +32,7 @@ resources:
 #            entry_point: main
 #            named_parameters:
 #              catalog: "main"
-#              schema: "hackaton_cost_monitoring_v2"
+#              schema: "billing_clusters_cost_allocation"
 #          libraries:
 #            - whl: ../dist/*.whl
 
