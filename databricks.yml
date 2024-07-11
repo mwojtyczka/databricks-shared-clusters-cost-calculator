@@ -1,0 +1,42 @@
+# This is a Databricks asset bundle definition for shared clusters cost allocation solution.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: clusters_cost_allocation
+
+artifacts:
+  default:
+    type: whl
+    build: poetry build
+    path: .
+
+include:
+  - resources/*.yml
+
+variables:
+  user_name:
+    default: marcin.wojtyczka@databricks.com
+
+targets:
+  # The 'dev' target, for development purposes. This target is the default.
+  dev:
+    # We use 'mode: development' to indicate this is a personal development copy:
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default
+    # - The 'development' mode is used for Delta Live Tables pipelines
+    mode: development
+    default: true
+    workspace:
+      host: https://e2-dogfood.staging.cloud.databricks.com/
+
+  # The 'prod' target, used for production deployment.
+  prod:
+    # We use 'mode: production' to indicate this is a production deployment.
+    # Doing so enables strict verification of the settings below.
+    mode: production
+    workspace:
+      host: https://e2-dogfood.staging.cloud.databricks.com/
+      root_path: /Users/${var.user_name}/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      # We could also use a service principal here,
+      # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
+      user_name: ${var.user_name}
