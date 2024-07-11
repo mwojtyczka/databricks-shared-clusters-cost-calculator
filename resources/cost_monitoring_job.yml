@@ -46,7 +46,7 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "hackaton_cost_monitoring_v2"
+              schema: "billing_clusters_cost_allocation"
 
       job_clusters:
         - job_cluster_key: job_cluster
