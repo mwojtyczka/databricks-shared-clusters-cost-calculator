@@ -14,13 +14,13 @@ resources:
       tasks:
         - task_key: create_tables
           #job_cluster_key: job_cluster
-          existing_cluster_id: 1115-130834-ms4m0yv
+          existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
             notebook_path: ../src/create_tables.sql
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "hackaton_cost_monitoring_v2"
+              schema: "billing_clusters_cost_allocation"
 
       job_clusters:
         - job_cluster_key: job_cluster
