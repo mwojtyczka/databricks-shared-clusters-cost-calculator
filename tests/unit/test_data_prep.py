@@ -41,7 +41,6 @@ prep_system_query_history_schema = StructType(
         StructField("written_bytes", LongType(), True),
         StructField("shuffle_read_bytes", LongType(), True),
         StructField("from_results_cache", BooleanType(), True),
-        StructField("cloud", StringType(), False),
         StructField("billing_date", DateType(), False),
         StructField("warehouse_id", StringType(), False),
     ]
@@ -165,7 +164,6 @@ def test_prepare_query_history(spark_session: SparkSession):  # using pytest-spa
                 14,
                 15,
                 None,
-                "AZURE",
                 datetime.strptime("2024-01-24", "%Y-%m-%d"),
                 "warehouse1",
             )

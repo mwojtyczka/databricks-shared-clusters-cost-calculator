@@ -1370,11 +1370,11 @@ def test_calculate_monthly_costs(spark_session: SparkSession):  # using pytest-s
     )
 
     assert_df_equality(
-        user_costs_month_df,
-        expected_user_costs_month_df,
+        user_costs_month_df.sort(user_costs_month_df.columns),
+        expected_user_costs_month_df.sort(user_costs_month_df.columns),
         ignore_nullable=True,
         ignore_column_order=True,
-        ignore_row_order=True,
+        # ignore_row_order=True,
     )
 
 
@@ -1795,8 +1795,6 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
     user_costs_day_df = CostCalculator().calculate_daily_user_cost(
         queries_df, weights, list_prices_df, users_df, billing_df, cloud_infra_cost_df
     )
-
-    user_costs_day_df.show(1000, False)
 
     assert_df_equality(
         user_costs_day_df,

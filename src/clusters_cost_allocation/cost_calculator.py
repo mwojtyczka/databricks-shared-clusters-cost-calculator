@@ -117,10 +117,8 @@ class CostCalculatorIO(object):
 
         # TODO if a query spans 2 days, we will attribute the cost to the end date only
         #  although DBUs are consumed from day 1 and 2
-        # "cloud" col is currently not part of the table
         return (
-            queries.withColumn("cloud", lit("AZURE"))
-            .withColumn("billing_date", to_date(col("end_time"), "yyyy-MM-dd"))
+            queries.withColumn("billing_date", to_date(col("end_time"), "yyyy-MM-dd"))
             .withColumn("warehouse_id", col("compute.warehouse_id"))
             .drop("compute")
         )
@@ -248,7 +246,6 @@ class CostCalculator(object):
             "account_id",
             "workspace_id",
             "warehouse_id",
-            "cloud",
             "user_name",
             "billing_date",
         )
@@ -301,7 +298,6 @@ class CostCalculator(object):
 
         contributions_df = weigthed_sum_df.groupBy(
             "user_name",
-            "cloud",
             "billing_date",
             "account_id",
             "warehouse_id",
@@ -310,14 +306,14 @@ class CostCalculator(object):
 
         # Calculate the total sum of contributions for each account_id and workspace_id
         total_contributions_df = weigthed_sum_df.groupBy(
-            "cloud", "billing_date", "account_id", "warehouse_id", "workspace_id"
+            "billing_date", "account_id", "warehouse_id", "workspace_id"
         ).agg(sum("contribution").alias("total_contribution"))
 
         # Normalize contributions
         normalized_df = (
             contributions_df.join(
                 total_contributions_df,
-                ["cloud", "billing_date", "account_id", "warehouse_id", "workspace_id"],
+                ["billing_date", "account_id", "warehouse_id", "workspace_id"],
             )
             .withColumn(
                 "normalized_contribution",
@@ -339,7 +335,7 @@ class CostCalculator(object):
         billing_df = billing_df.where(col("usage_unit") == lit("DBU"))
 
         billing_pricing_df = billing_df.join(
-            list_prices_df, on=["account_id", "cloud", "billing_date", "sku_name"]
+            list_prices_df, on=["cloud", "account_id", "billing_date", "sku_name"]
         ).withColumn("usage_quantity_cost", col("pricing") * col("usage_quantity"))
         return billing_pricing_df
 
@@ -351,7 +347,6 @@ class CostCalculator(object):
                 on=[
                     "account_id",
                     "workspace_id",
-                    "cloud",
                     "billing_date",
                     "warehouse_id",
                 ],

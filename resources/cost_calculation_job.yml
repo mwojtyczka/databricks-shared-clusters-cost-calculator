@@ -38,7 +38,7 @@ resources:
 
         - task_key: calculate_monthly_costs
           #job_cluster_key: job_cluster
-          existing_cluster_id: 1115-130834-ms4m0yv
+          existing_cluster_id: 0711-231739-dxdxc9hq
           depends_on:
             - task_key: calculate_daily_costs
           notebook_task:
