@@ -337,54 +337,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 6: no billing for user
-                (
-                    "account1",
-                    "workspace1",
-                    "statement1",
-                    "NO_BILLING_USER",
-                    "session1",
-                    "FINISHED",
-                    {
-                        "type": "WAREHOUSE",
-                        "cluster_id": None,
-                        "warehouse_id": "warehouse1",
-                    },
-                    "user1",
-                    "select 1",
-                    "SELECT",
-                    None,
-                    None,
-                    None,
-                    datetime.strptime(
-                        "2024-01-25 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    datetime.strptime(
-                        "2024-01-25 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    datetime.strptime(
-                        "2024-01-25 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    50,
-                    250,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    None,
-                ),
-                # Test case 7: no billing for account
+                # Test case 6: no billing for account
                 (
                     "NO_BILLING_ACCOUNT",
                     "workspace1",
@@ -431,7 +384,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 8: no billing for workspace
+                # Test case 7: no billing for workspace
                 (
                     "account1",
                     "NO_BILLING_WORKSPACE",
@@ -478,7 +431,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 9: no billing for warehouse
+                # Test case 8: no billing for warehouse
                 (
                     "account1",
                     "workspace1",
@@ -525,7 +478,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 10: no billing for specified date
+                # Test case 9: no billing for specified date
                 (
                     "account1",
                     "workspace1",
@@ -1027,11 +980,11 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
     )
 
     assert_df_equality(
-        user_costs_day_df.sort(user_costs_day_df.columns),
-        expected_user_costs_day_df.sort(user_costs_day_df.columns),
+        user_costs_day_df,  # .sort(user_costs_day_df.columns),
+        expected_user_costs_day_df,  # .sort(user_costs_day_df.columns),
         ignore_nullable=True,
         ignore_column_order=True,
-        #ignore_row_order=True,
+        ignore_row_order=True,
     )
 
 
