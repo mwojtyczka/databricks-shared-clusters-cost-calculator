@@ -17,11 +17,11 @@ resources:
           - marcin.wojtyczka@databricks.com
 
       tasks:
-        - task_key: calculate_daily_costs
+        - task_key: run_cost_agg_day
           #job_cluster_key: job_cluster
           existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
-            notebook_path: ../src/calculate_daily_costs.py
+            notebook_path: ../src/run_cost_agg_day.py
             source: WORKSPACE
             base_parameters:
               catalog: "main"
@@ -36,13 +36,13 @@ resources:
 #          libraries:
 #            - whl: ../dist/*.whl
 
-        - task_key: calculate_monthly_costs
+        - task_key: run_cost_agg_month
           #job_cluster_key: job_cluster
           existing_cluster_id: 0711-231739-dxdxc9hq
           depends_on:
-            - task_key: calculate_daily_costs
+            - task_key: run_cost_agg_day
           notebook_task:
-            notebook_path: ../src/calculate_monthly_costs.py
+            notebook_path: ../src/run_cost_agg_month.py
             source: WORKSPACE
             base_parameters:
               catalog: "main"

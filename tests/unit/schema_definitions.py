@@ -138,7 +138,7 @@ system_cloud_infra_costs_schema = StructType(
     ]
 )
 
-user_costs_day_schema = StructType(
+cost_agg_day_schema = StructType(
     [
         StructField("account_id", StringType(), False),
         StructField("workspace_id", StringType(), False),
@@ -168,7 +168,7 @@ user_costs_day_schema = StructType(
     ]
 )
 
-user_costs_month_schema = StructType(
+cost_agg_month_schema = StructType(
     [
         StructField("account_id", StringType(), False),
         StructField("workspace_id", StringType(), False),

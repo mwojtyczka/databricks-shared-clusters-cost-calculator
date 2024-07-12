@@ -60,15 +60,13 @@ class CostCalculatorIO(object):
         )
         df.write.mode("overwrite").saveAsTable(table)
 
-    def save_user_costs(
-        self, user_costs_df, table: str, last_checkpoint_date: datetime
-    ):
+    def save_costs(self, costs_df, table: str, last_checkpoint_date: datetime):
         if last_checkpoint_date:
             self.spark.sql(
                 f"DELETE FROM {table} WHERE billing_date > '{last_checkpoint_date}'"
             )  # useful for reprocessing, just need to reset checkpoint
 
-        user_costs_df.write.mode("append").saveAsTable(table)
+        costs_df.write.mode("append").saveAsTable(table)
 
     def read_query_history(
         self,
@@ -378,7 +376,7 @@ class CostCalculator(object):
 
         return cost_df
 
-    def calculate_daily_user_cost(
+    def calculate_cost_agg_day(
         self,
         weights,
         queries_df,
@@ -397,8 +395,8 @@ class CostCalculator(object):
 
         return costs_all_df
 
-    def calculate_monthly_user_cost(self, daily_user_cost_df):
-        df = daily_user_cost_df.withColumn(
+    def calculate_cost_agg_month(self, cost_agg_day_df):
+        df = cost_agg_day_df.withColumn(
             "billing_year", year(col("billing_date"))
         ).withColumn("billing_month", month(col("billing_date")))
 

@@ -28,20 +28,20 @@ def calculate_daily_costs(
 
     print("Calculating daily costs ...")
     calculator = CostCalculator()
-    user_costs_day_df = calculator.calculate_daily_user_cost(
+    cost_agg_day_df = calculator.calculate_cost_agg_day(
         weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
-    io.save_user_costs(
-        user_costs_day_df, catalog_and_schema + ".user_costs_day", last_checkpoint
+    io.save_costs(
+        cost_agg_day_df, catalog_and_schema + ".cost_agg_day", last_checkpoint
     )
     print("Calculating daily costs finished")
 
-    if user_costs_day_df.count() == 0:
+    if cost_agg_day_df.count() == 0:
         print("No data available from daily calculation.")
         return
 
     print("Saving checkpoint for daily costs")
-    new_checkpoint = io.get_max_date_col(user_costs_day_df, "billing_date")
+    new_checkpoint = io.get_max_date_col(cost_agg_day_df, "billing_date")
     io.save_checkpoint(catalog_and_schema + ".checkpoint_day", new_checkpoint)
     print(f"Checkpoint saved for daily costs as {new_checkpoint}")
 
@@ -57,10 +57,10 @@ def calculate_monthly_costs(catalog: str, schema: str):
     print(f"last checkpoint for monthly calculation: {last_checkpoint}")
 
     print("Calculating monthly costs")
-    user_costs_day_df = spark.table(catalog_and_schema + ".user_costs_day")
+    cost_agg_day_df = spark.table(catalog_and_schema + ".cost_agg_day")
 
     if last_checkpoint:
-        user_costs_day_df = user_costs_day_df.filter(
+        cost_agg_day_df = cost_agg_day_df.filter(
             to_date(
                 concat(
                     year("billing_date"),
@@ -73,20 +73,20 @@ def calculate_monthly_costs(catalog: str, schema: str):
             > last_checkpoint
         )
 
-        if user_costs_day_df.count() == 0:
+        if cost_agg_day_df.count() == 0:
             print("No data available from monthly calculation. Skipping.")
             return
 
-    user_costs_month_df = calculator.calculate_monthly_user_cost(user_costs_day_df)
-    io.save_user_costs(
-        user_costs_month_df,
-        catalog_and_schema + ".user_costs_month",
+    cost_agg_month_df = calculator.calculate_cost_agg_month(cost_agg_day_df)
+    io.save_costs(
+        cost_agg_month_df,
+        catalog_and_schema + ".cost_agg_month",
         last_checkpoint,
     )
     print("Calculating monthly costs finished")
 
     print("Saving checkpoint for monthly costs")
-    new_checkpoint = io.get_max_date_col(user_costs_month_df, "billing_date")
+    new_checkpoint = io.get_max_date_col(cost_agg_month_df, "billing_date")
     io.save_checkpoint(catalog_and_schema + ".checkpoint_month", new_checkpoint)
     print(f"Checkpoint saved for monthly costs as {new_checkpoint}")
 

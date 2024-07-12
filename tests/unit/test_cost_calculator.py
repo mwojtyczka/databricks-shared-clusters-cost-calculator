@@ -980,7 +980,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
         )
     )
 
-    expected_user_costs_day_df = spark_session.createDataFrame(
+    expected_cost_agg_day_df = spark_session.createDataFrame(
         [
             # Test case 1: multiple queries from 1 user
             (
@@ -1204,16 +1204,16 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 0,
             ),
         ],
-        user_costs_day_schema,
+        cost_agg_day_schema,
     )
 
-    user_costs_day_df = CostCalculator().calculate_daily_user_cost(
+    cost_agg_day_df = CostCalculator().calculate_cost_agg_day(
         weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
 
     assert_df_equality(
-        user_costs_day_df,
-        expected_user_costs_day_df,
+        cost_agg_day_df,
+        expected_cost_agg_day_df,
         ignore_nullable=True,
         ignore_column_order=True,
         ignore_row_order=True,
@@ -1221,7 +1221,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
 
 
 def test_calculate_monthly_costs(spark_session: SparkSession):  # using pytest-spark
-    user_costs_day_df = spark_session.createDataFrame(
+    cost_agg_day_df = spark_session.createDataFrame(
         [
             # Test case 1: multiple days for 1 user within a month
             (
@@ -1445,14 +1445,12 @@ def test_calculate_monthly_costs(spark_session: SparkSession):  # using pytest-s
                 30,
             ),
         ],
-        user_costs_day_schema,
+        cost_agg_day_schema,
     )
 
-    user_costs_month_df = CostCalculator().calculate_monthly_user_cost(
-        user_costs_day_df
-    )
+    cost_agg_month_df = CostCalculator().calculate_cost_agg_month(cost_agg_day_df)
 
-    expected_user_costs_month_df = spark_session.createDataFrame(
+    expected_cost_agg_month_df = spark_session.createDataFrame(
         [
             # Test case 1: multiple days for 1 user
             (
@@ -1544,12 +1542,12 @@ def test_calculate_monthly_costs(spark_session: SparkSession):  # using pytest-s
                 "EUR",
             ),
         ],
-        user_costs_month_schema,
+        cost_agg_month_schema,
     )
 
     assert_df_equality(
-        user_costs_month_df,
-        expected_user_costs_month_df,
+        cost_agg_month_df,
+        expected_cost_agg_month_df,
         ignore_nullable=True,
         ignore_column_order=True,
         ignore_row_order=True,
@@ -1800,7 +1798,7 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
         )
     )
 
-    expected_user_costs_day_df = spark_session.createDataFrame(
+    expected_cost_agg_day_df = spark_session.createDataFrame(
         [
             (
                 "account1",
@@ -1885,16 +1883,16 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                 1500,
             ),
         ],
-        user_costs_day_schema,
+        cost_agg_day_schema,
     )
 
-    user_costs_day_df = CostCalculator().calculate_daily_user_cost(
+    cost_agg_day_df = CostCalculator().calculate_cost_agg_day(
         weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
 
     assert_df_equality(
-        user_costs_day_df,
-        expected_user_costs_day_df,
+        cost_agg_day_df,
+        expected_cost_agg_day_df,
         ignore_nullable=True,
         ignore_column_order=True,
         ignore_row_order=True,

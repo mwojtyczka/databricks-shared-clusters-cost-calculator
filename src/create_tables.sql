@@ -26,13 +26,13 @@ CREATE TABLE IF NOT EXISTS user_info(
   user_id string NOT NULL,
   display_name string NOT NULL,
   department string NOT NULL,
-  cost_center int,
+  cost_center string,
   CONSTRAINT pk PRIMARY KEY(user_name)
 );
 
 -- COMMAND ----------
 
-CREATE TABLE IF NOT EXISTS user_costs_day(
+CREATE TABLE IF NOT EXISTS cost_agg_day(
   user_name string NOT NULL,
   cloud string NOT NULL,
   billing_date date NOT NULL,
@@ -58,13 +58,13 @@ CREATE TABLE IF NOT EXISTS user_costs_day(
   spilled_local_bytes long,
   written_bytes long,
   shuffle_read_bytes long,
-  CONSTRAINT user_costs_day_pk PRIMARY KEY(user_name, cloud, billing_date, account_id, warehouse_id, workspace_id),
-  CONSTRAINT user_costs_day_users_fk FOREIGN KEY (user_name) REFERENCES user_info
+  CONSTRAINT cost_agg_day_pk PRIMARY KEY(user_name, cloud, billing_date, account_id, warehouse_id, workspace_id),
+  CONSTRAINT cost_agg_day_users_fk FOREIGN KEY (user_name) REFERENCES user_info
 );
 
 -- COMMAND ----------
 
-CREATE TABLE IF NOT EXISTS user_costs_month(
+CREATE TABLE IF NOT EXISTS cost_agg_month(
   user_name string NOT NULL,
   cloud string NOT NULL,
   billing_date date NOT NULL, -- always as 1st day of the month
@@ -77,8 +77,8 @@ CREATE TABLE IF NOT EXISTS user_costs_month(
   cloud_cost decimal(38, 2),
   currency_code string NOT NULL,
   dbu_contribution_percent decimal(17, 14) NOT NULL,
-  CONSTRAINT user_costs_month_pk PRIMARY KEY(user_name, billing_year, billing_month, account_id, workspace_id),
-  CONSTRAINT user_costs_month_users_fk FOREIGN KEY (user_name) REFERENCES user_info
+  CONSTRAINT cost_agg_month_pk PRIMARY KEY(user_name, billing_year, billing_month, account_id, workspace_id),
+  CONSTRAINT cost_agg_month_users_fk FOREIGN KEY (user_name) REFERENCES user_info
 );
 
 -- COMMAND ----------
