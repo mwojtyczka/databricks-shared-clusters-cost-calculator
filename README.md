@@ -3,6 +3,14 @@
 This project establish a solution to calculate costs of queries run by users on “shared” Databricks SQL Warehouses.
 To accomplish this, system tables and numerous metrics provided by query history are used.
 
+# Problem
+
+![problem](docs/problem.png)
+
+# Solution
+
+![architecture](docs/architecture.png)
+
 # Getting started
 
 1. Install the Databricks CLI from https://docs.databricks.com/dev-tools/cli/databricks-cli.html
@@ -12,31 +20,29 @@ To accomplish this, system tables and numerous metrics provided by query history
     $ databricks configure
     ```
 
-3. To deploy a development copy of this project, type:
+3. Deploy a development copy of this project to the workspace:
     ```
     $ databricks bundle deploy --target dev
     ```
-    (Note that "dev" is the default target, so the `--target` parameter
-    is optional here.)
-
     This deploys everything that's defined for this project.
-    For example, the default template would deploy a job called
-    `[dev yourname] Clusters Cost Allocation` to your workspace.
-    You can find that job by opening your workpace and clicking on **Workflows**.
+    Note that "dev" is the default target, so the `--target` parameter is optional here.
 
-4. Similarly, to deploy a production copy, type:
+4. Similarly, if you want to deploy a production copy of this project to the workspace:
    ```
    $ databricks bundle deploy --target prod
    ```
 
-   Note that the default job from the template has a schedule that runs every day
-   (defined in resources/cost_calculation_job.yml). The schedule
-   is paused when deploying in development mode (see
-   https://docs.databricks.com/dev-tools/bundles/deployment-modes.html).
+5. Run the jobs:
 
-5. To run a job or pipeline, use the "run" command:
    ```
-   $ databricks bundle run
+   # deploy tables
+   $ databricks bundle run clusters_cost_allocation_create_tables_job
+   
+   # run the calculation
+   $ databricks bundle run clusters_cost_allocation_job
+   
+   # run job to fetch user info
+   $ databricks bundle run clusters_cost_allocation_user_info_job
    ```
 
 6. Optionally, install developer tools such as the Databricks extension for Visual Studio Code from
@@ -71,7 +77,7 @@ poetry install
 poetry update
 ```
 
-### Get path to poetry virtual env
+### Get path to poetry virtual env so that you can setup interpreter in your IDE
 
 ```bash
 echo $(poetry env info --path)/bin

@@ -18,8 +18,7 @@ all_query_metrics = [
 # mapping of query metrics to weights
 weights = {
     "total_task_duration_ms": 0.6,
-    "total_duration_ms": 0.26,
-    "result_fetch_duration_ms": 0.02,
+    "execution_duration_ms": 0.28,
     "compilation_duration_ms": 0.02,
     "read_files": 0.02,
     "read_bytes": 0.02,
