@@ -607,14 +607,6 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
         )
     )
 
-    users_df = spark_session.createDataFrame(
-        [
-            ("user1@databricks.com", "user1", "Alice Smith", "PS", "1234"),
-            ("user2@databricks.com", "user2", "Marcin Wojtyczka", "PS", "A31"),
-        ],
-        user_info_schema,
-    )
-
     billing_df = CostCalculatorIO.prepare_billing(
         spark_session.createDataFrame(
             [
@@ -1031,14 +1023,15 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
     )
 
     user_costs_day_df = CostCalculator().calculate_daily_user_cost(
-        queries_df, weights, list_prices_df, users_df, billing_df, cloud_infra_cost_df
+        queries_df, weights, list_prices_df, billing_df, cloud_infra_cost_df
     )
 
     assert_df_equality(
-        user_costs_day_df,
-        expected_user_costs_day_df,
+        user_costs_day_df.sort(user_costs_day_df.columns),
+        expected_user_costs_day_df.sort(user_costs_day_df.columns),
         ignore_nullable=True,
         ignore_column_order=True,
+        #ignore_row_order=True,
     )
 
 
@@ -1370,11 +1363,11 @@ def test_calculate_monthly_costs(spark_session: SparkSession):  # using pytest-s
     )
 
     assert_df_equality(
-        user_costs_month_df.sort(user_costs_month_df.columns),
-        expected_user_costs_month_df.sort(user_costs_month_df.columns),
+        user_costs_month_df,
+        expected_user_costs_month_df,
         ignore_nullable=True,
         ignore_column_order=True,
-        # ignore_row_order=True,
+        ignore_row_order=True,
     )
 
 
@@ -1593,15 +1586,6 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
         )
     )
 
-    users_df = spark_session.createDataFrame(
-        [
-            ("user1@databricks.com", "user1", "Alice Smith", "PS", "1234"),
-            ("user2@databricks.com", "user2", "Marcin Wojtyczka", "PS", "A31"),
-            ("user3@databricks.com", "user3", "Marcin Wojtyczka 2", "PS", "A31"),
-        ],
-        user_info_schema,
-    )
-
     billing_df = CostCalculatorIO.prepare_billing(
         spark_session.createDataFrame(
             [
@@ -1793,7 +1777,7 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
     )
 
     user_costs_day_df = CostCalculator().calculate_daily_user_cost(
-        queries_df, weights, list_prices_df, users_df, billing_df, cloud_infra_cost_df
+        queries_df, weights, list_prices_df, billing_df, cloud_infra_cost_df
     )
 
     assert_df_equality(

@@ -77,9 +77,6 @@ class CostCalculatorIO(object):
         queries = self.spark.table(table)
         return self.prepare_query_history(queries, last_checkpoint_date, current_date)
 
-    def read_user_info(self, table: str):
-        return self.spark.table(table)
-
     def read_billing(self, table: str, last_checkpoint_date: datetime = None):
         df = self.spark.table(table)
         return self.prepare_billing(df, last_checkpoint_date)
@@ -235,11 +232,8 @@ class CostCalculator(object):
             "shuffle_read_bytes",
         ]
 
-    def normalize_metrics(self, queries_df, users_df):
-        # Join with users_df
-        user_queries_df = queries_df.join(
-            users_df, queries_df.executed_by == users_df.user_name, "inner"
-        )
+    def normalize_metrics(self, queries_df):
+        queries_df = queries_df.withColumnRenamed("executed_by", "user_name")
 
         # Define window specification
         window_spec = Window.partitionBy(
@@ -257,7 +251,7 @@ class CostCalculator(object):
         }
 
         # Apply normalization
-        normalized_df = user_queries_df
+        normalized_df = queries_df
         for norm_col, max_col in max_values.items():
             normalized_df = normalized_df.withColumn(
                 f"{norm_col}_norm", col(norm_col) / max_col
@@ -409,11 +403,10 @@ class CostCalculator(object):
         queries_df,
         weights,
         list_prices_df,
-        users_df,
         billing_df,
         cloud_infra_cost_df,
     ):
-        normalized_queries_df = self.normalize_metrics(queries_df, users_df)
+        normalized_queries_df = self.normalize_metrics(queries_df)
         weigthed_sum_df = self.calculate_weighted_sum(normalized_queries_df, weights)
         contribution_df = self.calculate_normalized_contribution(weigthed_sum_df)
         billing_pricing_df = self.enrich_billing_with_pricing(
