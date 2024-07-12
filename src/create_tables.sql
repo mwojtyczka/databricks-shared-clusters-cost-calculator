@@ -26,13 +26,13 @@ CREATE TABLE IF NOT EXISTS user_info(
   user_id string NOT NULL,
   display_name string NOT NULL,
   department string NOT NULL,
-  cost_center int,
+  cost_center string,
   CONSTRAINT pk PRIMARY KEY(user_name)
 );
 
 -- COMMAND ----------
 
-CREATE TABLE IF NOT EXISTS user_costs_day(
+CREATE TABLE IF NOT EXISTS cost_agg_day(
   user_name string NOT NULL,
   cloud string NOT NULL,
   billing_date date NOT NULL,
@@ -58,13 +58,13 @@ CREATE TABLE IF NOT EXISTS user_costs_day(
   spilled_local_bytes long,
   written_bytes long,
   shuffle_read_bytes long,
-  CONSTRAINT user_costs_day_pk PRIMARY KEY(user_name, cloud, billing_date, account_id, warehouse_id, workspace_id),
-  CONSTRAINT user_costs_day_users_fk FOREIGN KEY (user_name) REFERENCES user_info
+  CONSTRAINT cost_agg_day_pk PRIMARY KEY(user_name, cloud, billing_date, account_id, warehouse_id, workspace_id),
+  CONSTRAINT cost_agg_day_users_fk FOREIGN KEY (user_name) REFERENCES user_info
 );
 
 -- COMMAND ----------
 
-CREATE TABLE IF NOT EXISTS user_costs_month(
+CREATE TABLE IF NOT EXISTS cost_agg_month(
   user_name string NOT NULL,
   cloud string NOT NULL,
   billing_date date NOT NULL, -- always as 1st day of the month
@@ -72,13 +72,14 @@ CREATE TABLE IF NOT EXISTS user_costs_month(
   billing_month int NOT NULL,
   account_id string NOT NULL,
   workspace_id string NOT NULL,
+  warehouse_id string NOT NULL,
   dbu decimal(38, 2) NOT NULL,
   dbu_cost decimal(38, 2) NOT NULL,
   cloud_cost decimal(38, 2),
   currency_code string NOT NULL,
   dbu_contribution_percent decimal(17, 14) NOT NULL,
-  CONSTRAINT user_costs_month_pk PRIMARY KEY(user_name, billing_year, billing_month, account_id, workspace_id),
-  CONSTRAINT user_costs_month_users_fk FOREIGN KEY (user_name) REFERENCES user_info
+  CONSTRAINT cost_agg_month_pk PRIMARY KEY(user_name, billing_year, billing_month, account_id, workspace_id),
+  CONSTRAINT cost_agg_month_users_fk FOREIGN KEY (user_name) REFERENCES user_info
 );
 
 -- COMMAND ----------
@@ -92,13 +93,3 @@ CREATE TABLE IF NOT EXISTS checkpoint_month(
 );
 
 -- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ### Preparing test data
-
--- COMMAND ----------
-
--- TODO testing only!
-INSERT INTO user_info(user_name, user_id, display_name, department, cost_center)
-VALUES ("marcin.wojtyczka@databricks.com", "1", "Marcin Wojtyczka", "PS", 1),
-       ("felix.mutzl@databricks.com", "2", "Felix Mutzl", "FE", 2)
