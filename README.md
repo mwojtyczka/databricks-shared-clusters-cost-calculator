@@ -3,6 +3,14 @@
 This project establish a solution to calculate costs of queries run by users on “shared” Databricks SQL Warehouses.
 To accomplish this, system tables and numerous metrics provided by query history are used.
 
+# Problem
+
+![problem](docs/problem.png)
+
+# Solution
+
+![architecture](docs/architecture.png)
+
 # Getting started
 
 1. Install the Databricks CLI from https://docs.databricks.com/dev-tools/cli/databricks-cli.html
