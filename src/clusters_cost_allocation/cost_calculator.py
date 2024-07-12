@@ -27,6 +27,8 @@ from pyspark.sql.window import Window
 from functools import reduce
 from operator import add
 
+from clusters_cost_allocation.metrics import all_query_metrics
+
 
 class CostCalculatorIO(object):
     def __init__(self, spark: SparkSession):
@@ -71,27 +73,18 @@ class CostCalculatorIO(object):
     def read_query_history(
         self,
         table: str,
+        metrics,
         last_checkpoint_date: datetime = None,
         current_date: datetime = datetime.now(),
     ):
         queries = self.spark.table(table)
-        return self.prepare_query_history(queries, last_checkpoint_date, current_date)
+        return self.prepare_query_history(
+            queries, metrics, last_checkpoint_date, current_date
+        )
 
     def read_billing(self, table: str, last_checkpoint_date: datetime = None):
         df = self.spark.table(table)
         return self.prepare_billing(df, last_checkpoint_date)
-
-    def get_weights(self):
-        return {
-            "total_task_duration_ms": 0.6,
-            "execution_duration_ms": 0.28,
-            "compilation_duration_ms": 0.02,
-            "read_files": 0.02,
-            "read_bytes": 0.02,
-            "read_rows": 0.02,
-            "produced_rows": 0.02,
-            "written_bytes": 0.02,
-        }
 
     def read_list_prices(self, table: str):
         df = self.spark.table(table)
@@ -104,6 +97,7 @@ class CostCalculatorIO(object):
     @staticmethod
     def prepare_query_history(
         queries,
+        metrics,
         last_checkpoint_date: datetime = None,
         current_date: datetime = datetime.now(),
     ):
@@ -214,25 +208,8 @@ class CostCalculatorIO(object):
 
 
 class CostCalculator(object):
-    def __init__(self):
-        self.query_metrics = [
-            "total_duration_ms",
-            "execution_duration_ms",
-            "compilation_duration_ms",
-            "total_task_duration_ms",
-            "result_fetch_duration_ms",
-            "read_partitions",
-            "pruned_files",
-            "read_files",
-            "read_rows",
-            "produced_rows",
-            "read_bytes",
-            "spilled_local_bytes",
-            "written_bytes",
-            "shuffle_read_bytes",
-        ]
 
-    def normalize_metrics(self, queries_df):
+    def normalize_metrics(self, queries_df, metrics):
         queries_df = queries_df.withColumnRenamed("executed_by", "user_name")
 
         # Define window specification
@@ -247,7 +224,7 @@ class CostCalculator(object):
         # Calculate max values using window functions
         max_values = {
             col_to_norm: max(col_to_norm).over(window_spec).alias(f"max_{col_to_norm}")
-            for col_to_norm in self.query_metrics
+            for col_to_norm in metrics
         }
 
         # Apply normalization
@@ -288,7 +265,7 @@ class CostCalculator(object):
         return queries_and_weights_df
 
     def calculate_normalized_contribution(self, weigthed_sum_df):
-        columns_to_sum = ["contribution"] + self.query_metrics
+        cols_to_sum = ["contribution"] + all_query_metrics
 
         contributions_df = weigthed_sum_df.groupBy(
             "user_name",
@@ -296,7 +273,7 @@ class CostCalculator(object):
             "account_id",
             "warehouse_id",
             "workspace_id",
-        ).agg(*[sum(col_to_sum).alias(col_to_sum) for col_to_sum in columns_to_sum])
+        ).agg(*[sum(col_to_sum).alias(col_to_sum) for col_to_sum in cols_to_sum])
 
         # Calculate the total sum of contributions for each account_id and workspace_id
         total_contributions_df = weigthed_sum_df.groupBy(
@@ -311,9 +288,12 @@ class CostCalculator(object):
             )
             .withColumn(
                 "normalized_contribution",
-                (col("contribution") * 100 / col("total_contribution")).cast(
-                    "decimal(17, 14)"
-                ),
+                when(
+                    col("total_contribution") != 0,
+                    (col("contribution") * 100 / col("total_contribution")).cast(
+                        "decimal(17, 14)"
+                    ),
+                ).otherwise(lit(0).cast("decimal(17, 14)")),
             )
             .drop("total_contribution")
         )
@@ -400,13 +380,13 @@ class CostCalculator(object):
 
     def calculate_daily_user_cost(
         self,
-        queries_df,
         weights,
+        queries_df,
         list_prices_df,
         billing_df,
         cloud_infra_cost_df,
     ):
-        normalized_queries_df = self.normalize_metrics(queries_df)
+        normalized_queries_df = self.normalize_metrics(queries_df, weights.keys())
         weigthed_sum_df = self.calculate_weighted_sum(normalized_queries_df, weights)
         contribution_df = self.calculate_normalized_contribution(weigthed_sum_df)
         billing_pricing_df = self.enrich_billing_with_pricing(

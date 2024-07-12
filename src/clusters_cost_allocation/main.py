@@ -1,6 +1,6 @@
 import argparse
 from clusters_cost_allocation.cost_calculator import *
-
+from clusters_cost_allocation.metrics import weights
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -17,8 +17,9 @@ def calculate_daily_costs(
     last_checkpoint = io.read_checkpoint(catalog_and_schema + ".checkpoint_day")
     print(f"last checkpoint for daily calculation: {last_checkpoint}")
 
-    weights = io.get_weights()
-    queries_df = io.read_query_history("system.query.history", last_checkpoint)
+    queries_df = io.read_query_history(
+        "system.query.history", weights.keys(), last_checkpoint
+    )
     list_prices_df = io.read_list_prices("system.billing.list_prices")
     billing_df = io.read_billing("system.billing.usage", last_checkpoint)
     cloud_infra_cost_df = io.read_cloud_infra_cost(
@@ -28,7 +29,7 @@ def calculate_daily_costs(
     print("Calculating daily costs ...")
     calculator = CostCalculator()
     user_costs_day_df = calculator.calculate_daily_user_cost(
-        queries_df, weights, list_prices_df, billing_df, cloud_infra_cost_df
+        weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
     io.save_user_costs(
         user_costs_day_df, catalog_and_schema + ".user_costs_day", last_checkpoint
