@@ -7,6 +7,8 @@ from schema_definitions import *
 
 
 def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spark
+    weights = {"total_duration_ms": 0.5, "total_task_duration_ms": 0.5}
+
     queries_df = CostCalculatorIO.prepare_query_history(
         spark_session.createDataFrame(
             [
@@ -337,54 +339,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 6: no billing for user
-                (
-                    "account1",
-                    "workspace1",
-                    "statement1",
-                    "NO_BILLING_USER",
-                    "session1",
-                    "FINISHED",
-                    {
-                        "type": "WAREHOUSE",
-                        "cluster_id": None,
-                        "warehouse_id": "warehouse1",
-                    },
-                    "user1",
-                    "select 1",
-                    "SELECT",
-                    None,
-                    None,
-                    None,
-                    datetime.strptime(
-                        "2024-01-25 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    datetime.strptime(
-                        "2024-01-25 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    datetime.strptime(
-                        "2024-01-25 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    50,
-                    250,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    None,
-                ),
-                # Test case 7: no billing for account
+                # Test case 6: no billing for account
                 (
                     "NO_BILLING_ACCOUNT",
                     "workspace1",
@@ -431,7 +386,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 8: no billing for workspace
+                # Test case 7: no billing for workspace
                 (
                     "account1",
                     "NO_BILLING_WORKSPACE",
@@ -478,7 +433,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 9: no billing for warehouse
+                # Test case 8: no billing for warehouse
                 (
                     "account1",
                     "workspace1",
@@ -525,7 +480,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
-                # Test case 10: no billing for specified date
+                # Test case 9: no billing for specified date
                 (
                     "account1",
                     "workspace1",
@@ -572,12 +527,152 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                     15,
                     None,
                 ),
+                # Test case 10: metrics are null
+                (
+                    "account1",
+                    "workspace1",
+                    "statement1",
+                    "user1@databricks.com",
+                    "session1",
+                    "FINISHED",
+                    {
+                        "type": "WAREHOUSE",
+                        "cluster_id": None,
+                        "warehouse_id": "warehouse1",
+                    },
+                    "user1",
+                    "select 1",
+                    "SELECT",
+                    None,
+                    None,
+                    None,
+                    datetime.strptime(
+                        "2024-01-25 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ),
+                # Test case 10: metrics are null, separate day
+                (
+                    "account1",
+                    "workspace1",
+                    "statement1",
+                    "user1@databricks.com",
+                    "session1",
+                    "FINISHED",
+                    {
+                        "type": "WAREHOUSE",
+                        "cluster_id": None,
+                        "warehouse_id": "warehouse1",
+                    },
+                    "user1",
+                    "select 1",
+                    "SELECT",
+                    None,
+                    None,
+                    None,
+                    datetime.strptime(
+                        "2024-01-26 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-26 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-26 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ),
+                # Test case 11: contribution 0
+                (
+                    "account1",
+                    "workspace1",
+                    "statement1",
+                    "user1@databricks.com",
+                    "session1",
+                    "FINISHED",
+                    {
+                        "type": "WAREHOUSE",
+                        "cluster_id": None,
+                        "warehouse_id": "warehouse1",
+                    },
+                    "user1",
+                    "select 1",
+                    "SELECT",
+                    None,
+                    None,
+                    None,
+                    datetime.strptime(
+                        "2024-01-27 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-27 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-27 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    None,
+                ),
             ],
             system_query_history_schema,
-        )
+        ),
+        weights.keys(),
     )
-
-    weights = {"total_duration_ms": 0.5, "total_task_duration_ms": 0.5}
 
     list_prices_df = CostCalculatorIO.prepare_list_prices(
         spark_session.createDataFrame(
@@ -605,14 +700,6 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
             ],
             list_prices_schema,
         )
-    )
-
-    users_df = spark_session.createDataFrame(
-        [
-            ("user1@databricks.com", "user1", "Alice Smith", "PS", "1234"),
-            ("user2@databricks.com", "user2", "Marcin Wojtyczka", "PS", "A31"),
-        ],
-        user_info_schema,
     )
 
     billing_df = CostCalculatorIO.prepare_billing(
@@ -708,6 +795,42 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                         "2024-01-25 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
                     ),
                     datetime.strptime("2024-01-25", "%Y-%m-%d"),
+                    None,
+                    "DBU",
+                    Decimal(100.0),
+                    {"warehouse_id": "warehouse1"},
+                ),
+                (
+                    "6",
+                    "account1",
+                    "workspace1",
+                    "PREMIUM_SQL_PRO_COMPUTE",
+                    "AZURE",
+                    datetime.strptime(
+                        "2024-01-26 01:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-26 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime("2024-01-26", "%Y-%m-%d"),
+                    None,
+                    "DBU",
+                    Decimal(100.0),
+                    {"warehouse_id": "warehouse1"},
+                ),
+                (
+                    "7",
+                    "account1",
+                    "workspace1",
+                    "PREMIUM_SQL_PRO_COMPUTE",
+                    "AZURE",
+                    datetime.strptime(
+                        "2024-01-27 01:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-27 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime("2024-01-27", "%Y-%m-%d"),
                     None,
                     "DBU",
                     Decimal(100.0),
@@ -1026,12 +1149,66 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 14,
                 15,
             ),
+            (
+                "account1",
+                "workspace1",
+                "AZURE",
+                datetime.strptime("2024-01-26", "%Y-%m-%d"),
+                "warehouse1",
+                "user1@databricks.com",
+                Decimal(0.00),
+                Decimal(0.00),
+                Decimal(0.00),
+                None,
+                "EUR",
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
+            (
+                "account1",
+                "workspace1",
+                "AZURE",
+                datetime.strptime("2024-01-27", "%Y-%m-%d"),
+                "warehouse1",
+                "user1@databricks.com",
+                Decimal(0.00),
+                Decimal(0.00),
+                Decimal(0.00),
+                None,
+                "EUR",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
         ],
         user_costs_day_schema,
     )
 
     user_costs_day_df = CostCalculator().calculate_daily_user_cost(
-        queries_df, weights, list_prices_df, users_df, billing_df, cloud_infra_cost_df
+        weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
 
     assert_df_equality(
@@ -1039,6 +1216,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
         expected_user_costs_day_df,
         ignore_nullable=True,
         ignore_column_order=True,
+        ignore_row_order=True,
     )
 
 
@@ -1381,6 +1559,8 @@ def test_calculate_monthly_costs(spark_session: SparkSession):  # using pytest-s
 def test_calculate_daily_costs_missing_cloud_infra_cost(
     spark_session: SparkSession,
 ):  # using pytest-spark
+    weights = {"total_duration_ms": 1.0}
+
     queries_df = CostCalculatorIO.prepare_query_history(
         spark_session.createDataFrame(
             [
@@ -1480,52 +1660,6 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                     "account1",
                     "workspace1",
                     "statement1",
-                    "user3@databricks.com",
-                    "session1",
-                    "FINISHED",
-                    {
-                        "type": "WAREHOUSE",
-                        "cluster_id": None,
-                        "warehouse_id": "warehouse1",
-                    },
-                    "user1",
-                    "select 1",
-                    "SELECT",
-                    None,
-                    None,
-                    None,
-                    datetime.strptime(
-                        "2024-01-25 23:07:06.944", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    datetime.strptime(
-                        "2024-01-25 23:07:07.260", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    datetime.strptime(
-                        "2024-01-25 23:07:07.550", "%Y-%m-%d %H:%M:%S.%f"
-                    ),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ),
-                (
-                    "account1",
-                    "workspace1",
-                    "statement1",
                     "user1@databricks.com",
                     "session1",
                     "FINISHED",
@@ -1570,10 +1704,9 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                 ),
             ],
             system_query_history_schema,
-        )
+        ),
+        weights.keys(),
     )
-
-    weights = {"total_duration_ms": 1.0}
 
     list_prices_df = CostCalculatorIO.prepare_list_prices(
         spark_session.createDataFrame(
@@ -1591,15 +1724,6 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
             ],
             list_prices_schema,
         )
-    )
-
-    users_df = spark_session.createDataFrame(
-        [
-            ("user1@databricks.com", "user1", "Alice Smith", "PS", "1234"),
-            ("user2@databricks.com", "user2", "Marcin Wojtyczka", "PS", "A31"),
-            ("user3@databricks.com", "user3", "Marcin Wojtyczka 2", "PS", "A31"),
-        ],
-        user_info_schema,
     )
 
     billing_df = CostCalculatorIO.prepare_billing(
@@ -1733,34 +1857,6 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                 140,
                 150,
             ),
-            # contribution should be 0 since the metric in question is Null
-            (
-                "account1",
-                "workspace1",
-                "AZURE",
-                datetime.strptime("2024-01-25", "%Y-%m-%d"),
-                "warehouse1",
-                "user3@databricks.com",
-                Decimal(0.00),
-                Decimal(0.00),
-                Decimal(0.00),
-                Decimal(0.00),
-                "EUR",
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ),
             (
                 "account1",
                 "workspace1",
@@ -1793,10 +1889,8 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
     )
 
     user_costs_day_df = CostCalculator().calculate_daily_user_cost(
-        queries_df, weights, list_prices_df, users_df, billing_df, cloud_infra_cost_df
+        weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
-
-    user_costs_day_df.show(1000, False)
 
     assert_df_equality(
         user_costs_day_df,

@@ -8,6 +8,11 @@ USE CATALOG ${catalog};
 
 -- COMMAND ----------
 
+-- TODO testing only! remove once code is ready
+DROP SCHEMA ${schema} cascade
+
+-- COMMAND ----------
+
 CREATE SCHEMA IF NOT EXISTS ${schema};
 
 -- COMMAND ----------
@@ -34,11 +39,11 @@ CREATE TABLE IF NOT EXISTS user_costs_day(
   account_id string NOT NULL,
   warehouse_id string NOT NULL,
   workspace_id string NOT NULL,
-  dbu decimal(38, 2) NOT NULL,
-  dbu_cost decimal(38, 2) NOT NULL,
-  cloud_cost decimal(38, 2) NOT NULL,
+  dbu decimal(38, 2),
+  dbu_cost decimal(38, 2),
+  cloud_cost decimal(38, 2),
   currency_code string NOT NULL,
-  dbu_contribution_percent decimal(17, 14) NOT NULL,
+  dbu_contribution_percent decimal(17, 14),
   total_duration_ms long,
   execution_duration_ms long,
   compilation_duration_ms long,
@@ -69,7 +74,7 @@ CREATE TABLE IF NOT EXISTS user_costs_month(
   workspace_id string NOT NULL,
   dbu decimal(38, 2) NOT NULL,
   dbu_cost decimal(38, 2) NOT NULL,
-  cloud_cost decimal(38, 2) NOT NULL,
+  cloud_cost decimal(38, 2),
   currency_code string NOT NULL,
   dbu_contribution_percent decimal(17, 14) NOT NULL,
   CONSTRAINT user_costs_month_pk PRIMARY KEY(user_name, billing_year, billing_month, account_id, workspace_id),

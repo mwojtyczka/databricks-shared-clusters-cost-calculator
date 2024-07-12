@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession
 from datetime import datetime
 from schema_definitions import *
 from decimal import *
+from clusters_cost_allocation.metrics import weights
 
 
 prep_system_query_history_schema = StructType(
@@ -41,7 +42,6 @@ prep_system_query_history_schema = StructType(
         StructField("written_bytes", LongType(), True),
         StructField("shuffle_read_bytes", LongType(), True),
         StructField("from_results_cache", BooleanType(), True),
-        StructField("cloud", StringType(), False),
         StructField("billing_date", DateType(), False),
         StructField("warehouse_id", StringType(), False),
     ]
@@ -123,11 +123,48 @@ def test_prepare_query_history(spark_session: SparkSession):  # using pytest-spa
                 15,
                 None,
             ),
+            # no metrics, should be filtered out
+            (
+                "account1",
+                "workspace1",
+                "statement1",
+                "user1@databricks.com",
+                "session1",
+                "FINISHED",
+                {"type": "WAREHOUSE", "cluster_id": None, "warehouse_id": "warehouse1"},
+                "user1",
+                "select 1",
+                "SELECT",
+                None,
+                None,
+                None,
+                datetime.strptime("3000-01-24 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("3000-01-24 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("3000-01-24 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ),
         ],
         system_query_history_schema,
     )
 
-    queries_df = CostCalculatorIO.prepare_query_history(raw_queries_df)
+    queries_df = CostCalculatorIO.prepare_query_history(raw_queries_df, weights.keys())
 
     expected_queries_df = spark_session.createDataFrame(
         [
@@ -165,7 +202,6 @@ def test_prepare_query_history(spark_session: SparkSession):  # using pytest-spa
                 14,
                 15,
                 None,
-                "AZURE",
                 datetime.strptime("2024-01-24", "%Y-%m-%d"),
                 "warehouse1",
             )
@@ -226,6 +262,7 @@ def test_prepare_query_history_filter_based_on_checkpoint(
     # return records greater than 2024-01-24
     queries_df = CostCalculatorIO.prepare_query_history(
         raw_queries_df,
+        weights.keys(),
         datetime.strptime("2024-01-24 23:59:59.999", "%Y-%m-%d %H:%M:%S.%f"),
     )
 
