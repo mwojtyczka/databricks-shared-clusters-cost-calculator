@@ -407,6 +407,7 @@ class CostCalculator(object):
             "cloud",
             "account_id",
             "workspace_id",
+            "warehouse_id",
             "currency_code",
         ).agg(
             sum("dbu").alias("dbu"),
@@ -420,6 +421,7 @@ class CostCalculator(object):
             "cloud",
             "account_id",
             "workspace_id",
+            "warehouse_id",
             "currency_code",
         ).agg(sum("dbu").alias("total_dbu"))
 
@@ -432,12 +434,18 @@ class CostCalculator(object):
                     "cloud",
                     "account_id",
                     "workspace_id",
+                    "warehouse_id",
                     "currency_code",
                 ],
             )
             .withColumn(
                 "dbu_contribution_percent",
-                round(col("dbu") * 100 / col("total_dbu"), 2).cast("decimal(17, 14)"),
+                when(
+                    col("total_dbu") != 0,
+                    round(col("dbu") * 100 / col("total_dbu"), 2).cast(
+                        "decimal(17, 14)"
+                    ),
+                ).otherwise(lit(0).cast("decimal(17, 14)")),
             )
             .drop("total_dbu")
         )

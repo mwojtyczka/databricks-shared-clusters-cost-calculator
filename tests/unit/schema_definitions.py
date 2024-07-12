@@ -172,6 +172,7 @@ cost_agg_month_schema = StructType(
     [
         StructField("account_id", StringType(), False),
         StructField("workspace_id", StringType(), False),
+        StructField("warehouse_id", StringType(), False),
         StructField("cloud", StringType(), False),
         StructField("billing_year", IntegerType(), False),
         StructField("billing_month", IntegerType(), False),

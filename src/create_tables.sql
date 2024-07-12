@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS cost_agg_month(
   billing_month int NOT NULL,
   account_id string NOT NULL,
   workspace_id string NOT NULL,
+  warehouse_id string NOT NULL,
   dbu decimal(38, 2) NOT NULL,
   dbu_cost decimal(38, 2) NOT NULL,
   cloud_cost decimal(38, 2),
@@ -92,13 +93,3 @@ CREATE TABLE IF NOT EXISTS checkpoint_month(
 );
 
 -- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ### Preparing test data
-
--- COMMAND ----------
-
--- TODO testing only!
-INSERT INTO user_info(user_name, user_id, display_name, department, cost_center)
-VALUES ("marcin.wojtyczka@databricks.com", "1", "Marcin Wojtyczka", "PS", 1),
-       ("felix.mutzl@databricks.com", "2", "Felix Mutzl", "FE", 2)
