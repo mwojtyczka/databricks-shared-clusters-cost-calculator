@@ -22,7 +22,7 @@ def calculate_daily_costs(
     list_prices_df = io.read_list_prices("system.billing.list_prices")
     users_df = io.read_user_info(catalog_and_schema + ".user_info")
     billing_df = io.read_billing("system.billing.usage", last_checkpoint)
-    cloud_infra_cost_df = io.read_billing(
+    cloud_infra_cost_df = io.read_cloud_infra_cost(
         "system.billing.cloud_infra_cost", last_checkpoint
     )
 
@@ -37,7 +37,7 @@ def calculate_daily_costs(
     print("Calculating daily costs finished")
 
     if user_costs_day_df.count() == 0:
-        print("No data available from daily calculation. Skipping.")
+        print("No data available from daily calculation.")
         return
 
     print("Saving checkpoint for daily costs")

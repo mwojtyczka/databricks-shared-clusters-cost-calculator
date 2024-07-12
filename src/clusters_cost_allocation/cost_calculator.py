@@ -100,9 +100,9 @@ class CostCalculatorIO(object):
         df = self.spark.table(table)
         return self.prepare_list_prices(df)
 
-    def read_cloud_infra_cost(self, table: str):
+    def read_cloud_infra_cost(self, table: str, last_checkpoint_date: datetime = None):
         df = self.spark.table(table)
-        return self.prepare_cloud_infra_cost(df)
+        return self.prepare_cloud_infra_cost(df, last_checkpoint_date)
 
     @staticmethod
     def prepare_query_history(
