@@ -1,7 +1,7 @@
 resources:
   jobs:
     create_tables_job:
-      name: "granular clusters cost - create tables"
+      name: "granular clusters cost - 1. create tables"
 
       # overwrite the default run_as from the bundle
       #run_as:

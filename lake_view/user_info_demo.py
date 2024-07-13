@@ -1,5 +1,10 @@
 # Databricks notebook source
 # MAGIC %md
+# MAGIC ## Run this notebook manually to setup additional sample data for the dashboard!
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ### Populating User Info table
 
 # COMMAND ----------
