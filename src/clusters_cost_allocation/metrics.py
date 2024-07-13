@@ -12,6 +12,8 @@ def get_metric_to_weight_map():
 
     total_weight = sum(mapping.values())
     if total_weight != 1.0:
-        raise ValueError(f"The total metrics weight must be 1.0, but it is {total_weight}")
+        raise ValueError(
+            f"The total metrics weight must be 1.0, but it is {total_weight}"
+        )
 
     return mapping

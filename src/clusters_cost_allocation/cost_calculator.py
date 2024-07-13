@@ -84,9 +84,7 @@ class CostCalculatorIO(object):
     ):
         print(f"Reading query history from `{table}`")
         queries = self.spark.table(table)
-        return self.prepare_query_history(
-            queries, last_checkpoint_date, current_date
-        )
+        return self.prepare_query_history(queries, last_checkpoint_date, current_date)
 
     def read_billing(self, table: str, last_checkpoint_date: datetime = None):
         print(f"Reading billing from `{table}`")
@@ -226,16 +224,23 @@ class CostCalculator(object):
     ):
         print("Calculating cost agg day ...")
 
-        normalized_queries_df = self.normalize_metrics(queries_df, metric_to_weight_map.keys())
-        weigthed_sum_df = self.calculate_weighted_sum(normalized_queries_df, metric_to_weight_map)
-        contribution_df = self.calculate_normalized_contribution(weigthed_sum_df)
-        billing_pricing_df = self.enrich_billing_with_prices(billing_df, list_prices_df)
-        dbu_df = self.calculate_dbu_consumption(contribution_df, billing_pricing_df)
-        costs_all_df = self.enrich_with_cloud_infra_cost(dbu_df, cloud_infra_cost_df)
+        normalized_queries_df = self._normalize_metrics(
+            queries_df, metric_to_weight_map.keys()
+        )
+        weigthed_sum_df = self._calculate_weighted_sum(
+            normalized_queries_df, metric_to_weight_map
+        )
+        contribution_df = self._calculate_normalized_contribution(weigthed_sum_df)
+        billing_pricing_df = self._enrich_billing_with_prices(
+            billing_df, list_prices_df
+        )
+        dbu_df = self._calculate_dbu_consumption(contribution_df, billing_pricing_df)
+        costs_all_df = self._enrich_with_cloud_infra_cost(dbu_df, cloud_infra_cost_df)
 
         return costs_all_df
 
-    def normalize_metrics(self, queries_df, metrics):
+    @staticmethod
+    def _normalize_metrics(queries_df, metrics):
         queries_df = queries_df.withColumnRenamed("executed_by", "user_name")
 
         window_spec = Window.partitionBy(
@@ -255,19 +260,19 @@ class CostCalculator(object):
         # Apply normalization
         normalized_df = queries_df
         for norm_col, max_col in max_values.items():
-            normalized_df = normalized_df.withColumn(
-                norm_col, col(norm_col) / max_col
-            )
+            normalized_df = normalized_df.withColumn(norm_col, col(norm_col) / max_col)
 
         return normalized_df
 
-    def calculate_weighted_sum(self, normalized_queries_df, metric_to_weight_map):
+    @staticmethod
+    def _calculate_weighted_sum(normalized_queries_df, metric_to_weight_map):
         # Multiply each metric by its weight
         queries_and_weights_df = normalized_queries_df
         for norm_col in metric_to_weight_map.keys():
             queries_and_weights_df = queries_and_weights_df.withColumn(
                 norm_col,
-                queries_and_weights_df[norm_col] * lit(metric_to_weight_map.get(norm_col))
+                queries_and_weights_df[norm_col]
+                * lit(metric_to_weight_map.get(norm_col)),
             )
 
         # sum up weighted metrics
@@ -284,7 +289,8 @@ class CostCalculator(object):
 
         return queries_and_weights_df
 
-    def calculate_normalized_contribution(self, weigthed_sum_df):
+    @staticmethod
+    def _calculate_normalized_contribution(weigthed_sum_df):
         # Calculate the total sum of contributions for each user
         user_contributions_df = weigthed_sum_df.groupBy(
             "user_name",
@@ -320,10 +326,10 @@ class CostCalculator(object):
         return normalized_df
 
     @staticmethod
-    def enrich_billing_with_prices(billing_df, list_prices_df):
-        list_prices_df = list_prices_df.where(
-            (col("usage_unit") == lit("DBU"))
-        ).drop("usage_unit")
+    def _enrich_billing_with_prices(billing_df, list_prices_df):
+        list_prices_df = list_prices_df.where((col("usage_unit") == lit("DBU"))).drop(
+            "usage_unit"
+        )
 
         billing_df = billing_df.where(col("usage_unit") == lit("DBU"))
 
@@ -333,7 +339,7 @@ class CostCalculator(object):
         return billing_pricing_df
 
     @staticmethod
-    def calculate_dbu_consumption(contribution_df, billing_pricing_df):
+    def _calculate_dbu_consumption(contribution_df, billing_pricing_df):
         dbu_df = (
             contribution_df.join(
                 billing_pricing_df,
@@ -374,7 +380,7 @@ class CostCalculator(object):
         )
 
     @staticmethod
-    def enrich_with_cloud_infra_cost(dbu_df, cloud_infra_cost_df):
+    def _enrich_with_cloud_infra_cost(dbu_df, cloud_infra_cost_df):
         cost_df = (
             dbu_df.join(
                 cloud_infra_cost_df,
