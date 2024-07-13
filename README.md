@@ -1,16 +1,16 @@
 # Introduction
 
 This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective 
-organisational entities (e.g. cost center, business units).
+organisational entities (e.g. cost center, departments / business units).
 
-The project will deploy the following jobs in your [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html):
+Once deployed, the following Jobs are created in your [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html):
 * `granular billing usage: 1. create tables`
 * `granular billing usage: 2. calculate`
 * `granular billing usage: 3. fetch user info` (requires configuration)
 
 Deploy and execute them in the given order (see [Getting started](#getting-started)).
 
-Optionally, you can import [this sample](lake_view/dashboard.json) LakeView Dashboard for visualization.
+Optionally, import [this sample](lake_view/dashboard.json) LakeView Dashboard for visualization.
 
 # Problem
 
@@ -128,7 +128,7 @@ source $(poetry env info --path)/bin/activate
 pytest tests/e2e --cov
 ```
 
-## Reinstalling poetry virtual env
+## Reinstalling poetry virtual env (in case of issues)
 
 ```
 poetry env list
