@@ -1,7 +1,6 @@
 # Introduction
 
-This project establish a solution to calculate costs of queries run by users on “shared” Databricks SQL Warehouses.
-To accomplish this, system tables and numerous metrics provided by query history are used.
+This project allocates usage of Databricks “Shared” SQL Warehouses to individual users and their respective organisational entities (for ex cost center, business unit).
 
 # Problem
 
