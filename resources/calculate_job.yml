@@ -1,7 +1,7 @@
 resources:
   jobs:
     calculate_job:
-      name: "granular clusters cost: 2. calculate"
+      name: "granular billing usage: 2. calculate"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -25,14 +25,14 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_granular_clusters_cost"
+              schema: "billing_usage_granular"
 
 #          python_wheel_task:
 #            package_name: granular_cluster_cost
 #            entry_point: main
 #            named_parameters:
 #              catalog: "main"
-#              schema: "billing_granular_clusters_cost"
+#              schema: "billing_usage_granular"
 #          libraries:
 #            - whl: ../dist/*.whl
 

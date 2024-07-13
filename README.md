@@ -1,12 +1,12 @@
 # Introduction
 
-This project allocates usage of Databricks “Shared” SQL Warehouses to individual users and their respective 
+This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective 
 organisational entities (e.g. cost center, business units).
 
 This project deploys the following jobs in a [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html):
-* `granular clusters cost: 1. create tables`
-* `granular clusters cost: 2. calculate`
-* `granular clusters cost: 3. fetch user info`
+* `granular billing usage: 1. create tables`
+* `granular billing usage: 2. calculate`
+* `granular billing usage: 3. fetch user info`
 
 Execute them in the given order (see [Getting started](#getting-started)). 
 
@@ -39,6 +39,8 @@ In order to deploy the project, the following is required:
     ```
     This deploys everything that's defined for this project.
     Note that "dev" is the default target, so the `--target` parameter is optional here.
+    
+    To customize the deployment (e.g. change target `schema`), update the job templates in [resources](resources).
 
 4. Similarly, if you want to deploy a production copy of this project to the workspace:
    ```

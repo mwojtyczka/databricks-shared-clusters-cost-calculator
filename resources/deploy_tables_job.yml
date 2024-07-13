@@ -1,7 +1,7 @@
 resources:
   jobs:
     create_tables_job:
-      name: "granular clusters cost: 1. create tables"
+      name: "granular billing usage: 1. create tables"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -20,7 +20,7 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_granular_clusters_cost"
+              schema: "billing_usage_granular"
               recreate_schema: "true"
 
       job_clusters:

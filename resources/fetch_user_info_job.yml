@@ -1,7 +1,7 @@
 resources:
   jobs:
     fetch_user_info_job:
-      name: "granular clusters cost: 3. fetch user info"
+      name: "granular billing usage: 3. fetch user info"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -25,7 +25,7 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_granular_clusters_cost"
+              schema: "billing_usage_granular"
 
       job_clusters:
         - job_cluster_key: job_cluster
