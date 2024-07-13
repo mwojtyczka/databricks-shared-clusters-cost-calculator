@@ -5,11 +5,11 @@ To accomplish this, system tables and numerous metrics provided by query history
 
 # Problem
 
-![problem](docs/problem.png)
+![problem](docs/problem.png?)
 
 # Solution
 
-![architecture](docs/architecture.png)
+![architecture](docs/architecture.png?)
 
 # Getting started
 
