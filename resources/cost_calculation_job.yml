@@ -1,7 +1,7 @@
 resources:
   jobs:
-    clusters_cost_allocation_job:
-      name: "Clusters Cost Allocation"
+    calculate_job:
+      name: "granular clusters cost - 2. calculate"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -17,36 +17,24 @@ resources:
           - marcin.wojtyczka@databricks.com
 
       tasks:
-        - task_key: run_cost_agg_day
-          #job_cluster_key: job_cluster
-          existing_cluster_id: 0711-231739-dxdxc9hq
+        - task_key: cost_agg_day
+          job_cluster_key: job_cluster
+          #existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
             notebook_path: ../src/run_cost_agg_day.py
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_clusters_cost_allocation"
+              schema: "billing_granular_clusters_cost"
 
 #          python_wheel_task:
-#            package_name: clusters_cost_allocation
+#            package_name: granular_cluster_cost
 #            entry_point: main
 #            named_parameters:
 #              catalog: "main"
-#              schema: "billing_clusters_cost_allocation"
+#              schema: "billing_granular_clusters_cost"
 #          libraries:
 #            - whl: ../dist/*.whl
-
-        - task_key: run_cost_agg_month
-          #job_cluster_key: job_cluster
-          existing_cluster_id: 0711-231739-dxdxc9hq
-          depends_on:
-            - task_key: run_cost_agg_day
-          notebook_task:
-            notebook_path: ../src/run_cost_agg_month.py
-            source: WORKSPACE
-            base_parameters:
-              catalog: "main"
-              schema: "billing_clusters_cost_allocation"
 
       job_clusters:
         - job_cluster_key: job_cluster

@@ -1,7 +1,7 @@
 resources:
   jobs:
-    clusters_cost_allocation_create_tables_job:
-      name: "Clusters Cost Allocation - Deploy Tables"
+    create_tables_job:
+      name: "granular clusters cost - 1. create tables"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -13,14 +13,15 @@ resources:
 
       tasks:
         - task_key: create_tables
-          #job_cluster_key: job_cluster
-          existing_cluster_id: 0711-231739-dxdxc9hq
+          job_cluster_key: job_cluster
+          #existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
             notebook_path: ../src/create_tables.sql
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_clusters_cost_allocation"
+              schema: "billing_granular_clusters_cost"
+              recreate_schema: "true"
 
       job_clusters:
         - job_cluster_key: job_cluster

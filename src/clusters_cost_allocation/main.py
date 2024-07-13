@@ -1,99 +1,47 @@
 import argparse
 from clusters_cost_allocation.cost_calculator import *
-from clusters_cost_allocation.metrics import weights
+from clusters_cost_allocation.metrics import get_metric_to_weight_map
 
 spark = SparkSession.builder.getOrCreate()
 
 
-def calculate_daily_costs(
+def run_cost_agg_day(
     catalog: str,
     schema: str,
 ):
+    print(f"Using catalog: {catalog}")
+    print(f"Using schema: {schema}")
+
     catalog_and_schema = catalog + "." + schema
-    print(f"using {catalog_and_schema}")
+    io = CostCalculatorIO(spark, catalog_and_schema)
 
-    io = CostCalculatorIO(spark)
+    last_checkpoint = io.read_checkpoint("checkpoint")
+    print(f"Last checkpoint: {last_checkpoint}")
 
-    last_checkpoint = io.read_checkpoint(catalog_and_schema + ".checkpoint_day")
-    print(f"last checkpoint for daily calculation: {last_checkpoint}")
-
-    queries_df = io.read_query_history(
-        "system.query.history", weights.keys(), last_checkpoint
-    )
+    queries_df = io.read_query_history("system.query.history", last_checkpoint)
     list_prices_df = io.read_list_prices("system.billing.list_prices")
     billing_df = io.read_billing("system.billing.usage", last_checkpoint)
-    cloud_infra_cost_df = io.read_cloud_infra_cost(
-        "system.billing.cloud_infra_cost", last_checkpoint
-    )
+    cloud_infra_cost_df = io.read_cloud_infra_cost("system.billing.cloud_infra_cost", last_checkpoint)
+    metric_to_weight_map = get_metric_to_weight_map()
 
-    print("Calculating daily costs ...")
     calculator = CostCalculator()
     cost_agg_day_df = calculator.calculate_cost_agg_day(
-        weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
+        metric_to_weight_map, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
     )
-    io.save_costs(
-        cost_agg_day_df, catalog_and_schema + ".cost_agg_day", last_checkpoint
-    )
-    print("Calculating daily costs finished")
+    io.save_costs(cost_agg_day_df, "cost_agg_day", last_checkpoint)
 
     if cost_agg_day_df.count() == 0:
         print("No data available from daily calculation.")
         return
 
-    print("Saving checkpoint for daily costs")
     new_checkpoint = io.get_max_date_col(cost_agg_day_df, "billing_date")
-    io.save_checkpoint(catalog_and_schema + ".checkpoint_day", new_checkpoint)
-    print(f"Checkpoint saved for daily costs as {new_checkpoint}")
+    io.save_checkpoint("checkpoint", new_checkpoint)
 
-
-def calculate_monthly_costs(catalog: str, schema: str):
-    catalog_and_schema = catalog + "." + schema
-    print(f"using {catalog_and_schema}")
-
-    io = CostCalculatorIO(spark)
-    calculator = CostCalculator()
-
-    last_checkpoint = io.read_checkpoint(catalog_and_schema + ".checkpoint_month")
-    print(f"last checkpoint for monthly calculation: {last_checkpoint}")
-
-    print("Calculating monthly costs")
-    cost_agg_day_df = spark.table(catalog_and_schema + ".cost_agg_day")
-
-    if last_checkpoint:
-        cost_agg_day_df = cost_agg_day_df.filter(
-            to_date(
-                concat(
-                    year("billing_date"),
-                    lit("-"),
-                    lpad(month("billing_date"), 2, "0"),
-                    lit("-01"),
-                ),
-                "yyyy-MM-dd",
-            ).cast(DateType())
-            > last_checkpoint
-        )
-
-        if cost_agg_day_df.count() == 0:
-            print("No data available from monthly calculation. Skipping.")
-            return
-
-    cost_agg_month_df = calculator.calculate_cost_agg_month(cost_agg_day_df)
-    io.save_costs(
-        cost_agg_month_df,
-        catalog_and_schema + ".cost_agg_month",
-        last_checkpoint,
-    )
-    print("Calculating monthly costs finished")
-
-    print("Saving checkpoint for monthly costs")
-    new_checkpoint = io.get_max_date_col(cost_agg_month_df, "billing_date")
-    io.save_checkpoint(catalog_and_schema + ".checkpoint_month", new_checkpoint)
-    print(f"Checkpoint saved for monthly costs as {new_checkpoint}")
+    print(f"Finished successfully")
 
 
 def main(catalog: str, schema: str):
-    calculate_daily_costs(catalog, schema)
-    calculate_monthly_costs(catalog, schema)
+    run_cost_agg_day(catalog, schema)
 
 
 if __name__ == "__main__":
