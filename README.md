@@ -128,7 +128,7 @@ source $(poetry env info --path)/bin/activate
 pytest tests/e2e --cov
 ```
 
-## Reinstalling poetry virtual env
+## Reinstalling poetry virtual env (in case of issues)
 
 ```
 poetry env list
