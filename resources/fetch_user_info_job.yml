@@ -18,8 +18,8 @@ resources:
 
       tasks:
         - task_key: user_info
-          #job_cluster_key: job_cluster
-          existing_cluster_id: 0711-231739-dxdxc9hq
+          job_cluster_key: job_cluster
+          #existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
             notebook_path: ../src/fetch_user_info.py
             source: WORKSPACE
