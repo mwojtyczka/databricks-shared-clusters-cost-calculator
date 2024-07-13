@@ -3,12 +3,14 @@
 This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective 
 organisational entities (e.g. cost center, business units).
 
-This project deploys the following jobs in a [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html):
+The project will deploy the following jobs in your [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html):
 * `granular billing usage: 1. create tables`
 * `granular billing usage: 2. calculate`
-* `granular billing usage: 3. fetch user info`
+* `granular billing usage: 3. fetch user info` (requires configuration)
 
-Execute them in the given order (see [Getting started](#getting-started)). 
+Deploy and execute them in the given order (see [Getting started](#getting-started)).
+
+Optionally, you can import [this sample](lake_view/dashboard.json) LakeView Dashboard for visualization.
 
 # Problem
 
@@ -56,13 +58,15 @@ In order to deploy the project, the following is required:
    # run the calculation
    $ databricks bundle run calculate_job --target dev
    
-   # run job to fetch user info
+   # run job to fetch user info (requires configuration)
    $ databricks bundle run fetch_user_info_job --target dev
    ```
+   
+6. Optionally, manually setup a LakeView Dashboard in your Databricks Workspace:
 
-6. Optionally, install developer tools such as the Databricks extension for Visual Studio Code from 
-   [here](https://docs.databricks.com/dev-tools/vscode-ext.html). Or read the "getting started" documentation for
-   **Databricks Connect** for instructions on running the included Python code from a different IDE.
+    * Import [this sample dashboard](lake_view/dashboard.json).
+    * Import and run [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
+      Since running the `fetch_user_info_job` job requires configuration, you can use this notebook to quickly get started.
 
 7. For documentation on the Databricks asset bundles format used
    for this project, and for CI/CD configuration, see [here](https://docs.databricks.com/dev-tools/bundles/index.html).
