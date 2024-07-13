@@ -21,12 +21,18 @@ def run_cost_agg_day(
     queries_df = io.read_query_history("system.query.history", last_checkpoint)
     list_prices_df = io.read_list_prices("system.billing.list_prices")
     billing_df = io.read_billing("system.billing.usage", last_checkpoint)
-    cloud_infra_cost_df = io.read_cloud_infra_cost("system.billing.cloud_infra_cost", last_checkpoint)
+    cloud_infra_cost_df = io.read_cloud_infra_cost(
+        "system.billing.cloud_infra_cost", last_checkpoint
+    )
     metric_to_weight_map = get_metric_to_weight_map()
 
     calculator = CostCalculator()
     cost_agg_day_df = calculator.calculate_cost_agg_day(
-        metric_to_weight_map, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
+        metric_to_weight_map,
+        queries_df,
+        list_prices_df,
+        billing_df,
+        cloud_infra_cost_df,
     )
     io.save_costs(cost_agg_day_df, "cost_agg_day", last_checkpoint)
 
