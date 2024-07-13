@@ -36,18 +36,6 @@ resources:
 #          libraries:
 #            - whl: ../dist/*.whl
 
-        - task_key: run_cost_agg_month
-          #job_cluster_key: job_cluster
-          existing_cluster_id: 0711-231739-dxdxc9hq
-          depends_on:
-            - task_key: run_cost_agg_day
-          notebook_task:
-            notebook_path: ../src/run_cost_agg_month.py
-            source: WORKSPACE
-            base_parameters:
-              catalog: "main"
-              schema: "billing_clusters_cost_allocation"
-
       job_clusters:
         - job_cluster_key: job_cluster
           new_cluster:

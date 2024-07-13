@@ -4,7 +4,6 @@ from pyspark.sql import SparkSession
 from datetime import datetime
 from schema_definitions import *
 from decimal import *
-from clusters_cost_allocation.metrics import weights
 
 
 prep_system_query_history_schema = StructType(
@@ -164,7 +163,7 @@ def test_prepare_query_history(spark_session: SparkSession):  # using pytest-spa
         system_query_history_schema,
     )
 
-    queries_df = CostCalculatorIO.prepare_query_history(raw_queries_df, weights.keys())
+    queries_df = CostCalculatorIO.prepare_query_history(raw_queries_df)
 
     expected_queries_df = spark_session.createDataFrame(
         [
@@ -262,7 +261,6 @@ def test_prepare_query_history_filter_based_on_checkpoint(
     # return records greater than 2024-01-24
     queries_df = CostCalculatorIO.prepare_query_history(
         raw_queries_df,
-        weights.keys(),
         datetime.strptime("2024-01-24 23:59:59.999", "%Y-%m-%d %H:%M:%S.%f"),
     )
 

@@ -2,9 +2,9 @@
 
 # COMMAND ----------
 
-from clusters_cost_allocation.main import calculate_daily_costs
+from clusters_cost_allocation.main import run_cost_agg_day
 
 catalog = dbutils.widgets.get("catalog")
 schema = dbutils.widgets.get("schema")
 
-calculate_daily_costs(catalog, schema)
+run_cost_agg_day(catalog, schema)

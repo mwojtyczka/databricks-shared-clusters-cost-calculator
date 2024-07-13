@@ -151,37 +151,6 @@ cost_agg_day_schema = StructType(
         StructField("dbu_cost", DecimalType(38, 2), False),
         StructField("cloud_cost", DecimalType(38, 2), True),
         StructField("currency_code", StringType(), False),
-        StructField("total_duration_ms", LongType(), True),
-        StructField("total_task_duration_ms", LongType(), True),
-        StructField("execution_duration_ms", LongType(), True),
-        StructField("compilation_duration_ms", LongType(), True),
-        StructField("result_fetch_duration_ms", LongType(), True),
-        StructField("read_partitions", LongType(), True),
-        StructField("pruned_files", LongType(), True),
-        StructField("read_files", LongType(), True),
-        StructField("read_rows", LongType(), True),
-        StructField("produced_rows", LongType(), True),
-        StructField("read_bytes", LongType(), True),
-        StructField("spilled_local_bytes", LongType(), True),
-        StructField("written_bytes", LongType(), True),
-        StructField("shuffle_read_bytes", LongType(), True),
     ]
 )
 
-cost_agg_month_schema = StructType(
-    [
-        StructField("account_id", StringType(), False),
-        StructField("workspace_id", StringType(), False),
-        StructField("warehouse_id", StringType(), False),
-        StructField("cloud", StringType(), False),
-        StructField("billing_year", IntegerType(), False),
-        StructField("billing_month", IntegerType(), False),
-        StructField("billing_date", DateType(), False),
-        StructField("user_name", StringType(), False),
-        StructField("dbu_contribution_percent", DecimalType(17, 14), False),
-        StructField("dbu", DecimalType(38, 2), False),
-        StructField("dbu_cost", DecimalType(38, 2), False),
-        StructField("cloud_cost", DecimalType(38, 2), True),
-        StructField("currency_code", StringType(), False),
-    ]
-)
