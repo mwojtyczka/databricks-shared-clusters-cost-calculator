@@ -8,7 +8,7 @@ This project deploys the following jobs in a [Databricks Workspace](https://docs
 * `granular clusters cost: 2. calculate`
 * `granular clusters cost: 3. fetch user info`
 
-Execute them in the given order (see [Getting started](#Getting started). 
+Execute them in the given order (see [Getting started](#getting-started)). 
 
 # Problem
 
