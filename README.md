@@ -1,7 +1,7 @@
 # Introduction
 
 This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective 
-organisational entities (e.g. cost center, business units).
+organisational entities (e.g. cost center, departments / business units).
 
 Once deployed, the following Jobs are created in your [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html):
 * `granular billing usage: 1. create tables`
