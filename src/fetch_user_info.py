@@ -101,6 +101,7 @@ from pyspark.sql.functions import col
 user_info_df = spark.createDataFrame(account_users).where(
     col("cost_center").isNotNull()
 )
-user_info_df.where(col("cost_center").isNotNull()).write.format("delta").mode(
-    "overwrite"
-).saveAsTable(catalog + "." + schema + "." + "user_info")
+
+user_info_df.where(col("cost_center").isNotNull())\
+    .write.format("delta").mode("overwrite")\
+    .saveAsTable(catalog + "." + schema + "." + "user_info")

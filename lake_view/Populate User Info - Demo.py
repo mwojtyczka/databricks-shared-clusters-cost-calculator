@@ -1,16 +1,21 @@
 # Databricks notebook source
-# Sample predefined lists for department and cost_center
+# MAGIC %md
+# MAGIC ### Populating User Info table
+
+# COMMAND ----------
+
+# Sample predefined lists of departments and cost centers
 import random
 from pyspark.sql.types import StructType, StructField, StringType
 
 # Predefined department and cost center pairs
 department_cost_center_pairs = [
     ("R&D", "701"),
-    ("Field Eng", "702"),
+    ("FE", "702"),
     ("PS", "703")
 ]
 
-users = spark.table("main.billing_clusters_cost_allocation.cost_agg_day").select("user_name")
+users = spark.table("main.billing_granular_clusters_cost.cost_agg_day").select("user_name")
 
 # Define user_info_schema
 user_info_schema = StructType(
@@ -23,7 +28,6 @@ user_info_schema = StructType(
     ]
 )
 
-# Generate user info DataFrame
 def create_user_info(data_df):
     user_info_list = []
     i = 0
@@ -38,21 +42,17 @@ def create_user_info(data_df):
     return spark.createDataFrame(user_info_list, schema=user_info_schema)
 
 user_info_df = create_user_info(users)
-
-# Show the result
-user_info_df.show()
-
-
-user_info_df.write.mode("overwrite").saveAsTable("main.billing_clusters_cost_allocation.user_info")
-
-# COMMAND ----------
-
-display(spark.sql('select * from main.billing_clusters_cost_allocation.user_info'))
+user_info_df.write.mode("overwrite").saveAsTable("main.billing_granular_clusters_cost.user_info")
 
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC CREATE TABLE IF NOT EXISTS main.billing_clusters_cost_allocation.budgets(
+# MAGIC select * from main.billing_granular_clusters_cost.user_info
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC CREATE TABLE IF NOT EXISTS main.billing_granular_clusters_cost.budgets(
 # MAGIC   department string NOT NULL,
 # MAGIC   monthly_budget long NOT NULL,
 # MAGIC   weekly_budget long NOT NULL,
@@ -61,8 +61,13 @@ display(spark.sql('select * from main.billing_clusters_cost_allocation.user_info
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ### Populating Budget
+
+# COMMAND ----------
+
 # MAGIC %sql
-# MAGIC INSERT INTO main.billing_clusters_cost_allocation.budgets(department, monthly_budget, weekly_budget)
+# MAGIC INSERT INTO main.billing_granular_clusters_cost.budgets(department, monthly_budget, weekly_budget)
 # MAGIC SELECT "R&D", 400, 70
 # MAGIC UNION
 # MAGIC SELECT "FE", 300, 60
@@ -72,4 +77,4 @@ display(spark.sql('select * from main.billing_clusters_cost_allocation.user_info
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC select * from main.billing_clusters_cost_allocation.budgets
+# MAGIC select * from main.billing_granular_clusters_cost.budgets

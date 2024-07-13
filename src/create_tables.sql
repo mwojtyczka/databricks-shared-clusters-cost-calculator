@@ -1,6 +1,6 @@
 -- Databricks notebook source
 -- MAGIC %md
--- MAGIC ### Creating Tables
+-- MAGIC ### Setting up schema
 
 -- COMMAND ----------
 
@@ -8,8 +8,13 @@ USE CATALOG ${catalog};
 
 -- COMMAND ----------
 
--- TODO testing only! remove once code is ready
-DROP SCHEMA ${schema} cascade
+-- MAGIC %python
+-- MAGIC schema = dbutils.widgets.get("schema")
+-- MAGIC if dbutils.widgets.get("recreate_schema").lower() == "true":
+-- MAGIC     print(f"Dropping schema: {schema}")
+-- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {schema} cascade")
+-- MAGIC
+-- MAGIC print(f"Creating schema: {schema}")
 
 -- COMMAND ----------
 
@@ -18,6 +23,11 @@ CREATE SCHEMA IF NOT EXISTS ${schema};
 -- COMMAND ----------
 
 USE SCHEMA ${schema};
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Creating Tables
 
 -- COMMAND ----------
 

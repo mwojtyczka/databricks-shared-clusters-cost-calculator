@@ -1,7 +1,7 @@
 resources:
   jobs:
-    clusters_cost_allocation_create_tables_job:
-      name: "Clusters Cost Allocation - Deploy Tables"
+    create_tables_job:
+      name: "granular clusters cost - create tables"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -20,7 +20,8 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_clusters_cost_allocation"
+              schema: "billing_granular_clusters_cost"
+              recreate_schema: "true"
 
       job_clusters:
         - job_cluster_key: job_cluster

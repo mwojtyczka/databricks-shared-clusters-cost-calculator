@@ -1,7 +1,7 @@
 resources:
   jobs:
-    clusters_cost_allocation_user_info_job:
-      name: "Clusters Cost Allocation - Fetch User Info"
+    fetch_user_info_job:
+      name: "granular clusters cost - fetch user info"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -25,7 +25,7 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog: "main"
-              schema: "billing_clusters_cost_allocation"
+              schema: "billing_granular_clusters_cost"
 
       job_clusters:
         - job_cluster_key: job_cluster
