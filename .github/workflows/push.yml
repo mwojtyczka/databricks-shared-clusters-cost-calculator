@@ -51,4 +51,4 @@ jobs:
           make dev fmt
 
       - name: Fail on differences
-        run: git diff ":(exclude)poetry.lock" --exit-code
+        run: git diff --exit-code ":(exclude)poetry.lock"
