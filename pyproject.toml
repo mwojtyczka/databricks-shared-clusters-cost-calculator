@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.10"
 
 [tool.poetry.group.test.dependencies]
-pyspark = "3.5.0"
+pyspark = "3.5.1"
 pytest = "^8.0.1"
 pytest-cov = "^4.0.0"
 pytest-spark = "^0.6.0"
