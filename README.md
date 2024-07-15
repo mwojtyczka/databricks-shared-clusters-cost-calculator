@@ -10,7 +10,7 @@ Once the project is deployed, the following Jobs are created in your Databricks 
 
 Deploy and execute them in the given order (see [Getting started](#getting-started)).
 
-To visualize the cost calculation results, import [this sample](lake_view/dashboard.json) Databricks Dashboard.
+To visualize the cost calculation results, Databricks Dashboard can be used (sample available as part of the project).
 
 # Problem
 
@@ -84,27 +84,37 @@ In order to deploy the project, the following is required:
 
 # Getting started
 
+The project uses [Databricks Assets Bundles (DAB)](https://docs.databricks.com/en/dev-tools/bundles/index.html) for deployment.
+
 1. Install the Databricks CLI (see [here](https://docs.databricks.com/dev-tools/cli/databricks-cli.html)).
 
 2. Authenticate to your Databricks workspace, if you have not done so already:
     ```
     $ databricks configure
     ```
-3. Update job templates in [resources](resources) to provide catalog and schema where the output should be persisted.
+3. Update job templates in [resources](resources) to provide catalog and schema that you want to use to store the results.
+   (`output_catalog`, `output_schema`).
 
-4. Deploy a development copy of this project to the workspace:
+4. Update assets bundle configuration under [databricks.yml](databricks.yml) to provide workspace host 
+and databricks user name to use for the execution.
+
+5. Update script for fetching user info to provide authentication details for your IdP:
+
+   * Entra ID: configure [this notebook](src/cluster_cost_allocation/fetch_user_info_ad.py)
+
+6. Deploy a development copy of this project to the workspace:
     ```
     $ databricks bundle deploy --target dev
     ```
 
     Note that "dev" is the default target, so the `--target` parameter is optional here.    
 
-5. Similarly, if you want to deploy a production copy of this project to the workspace:
+7. Similarly, if you want to deploy a production copy of this project to the workspace:
    ```
    $ databricks bundle deploy --target prod
    ```
-
-6. Run the jobs:
+   
+8. Run the jobs:
 
    ```
    # deploy tables
@@ -113,17 +123,17 @@ In order to deploy the project, the following is required:
    # run the calculation
    $ databricks bundle run calculate_job --target dev
    
-   # run job to fetch user info (requires configuration)
+   # run job to fetch user info
    $ databricks bundle run fetch_user_info_job --target dev
    ```
    
-7. If you want to visualize the results:
+9. If you want to visualize the results:
 
     * Import [this dashboard](lake_view/dashboard.json).
     * Import and run [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
-      Since running the `fetch_user_info_job` job requires configuration, you can use this notebook to quickly get started.
+      Since running the `fetch_user_info_job` job requires configuration, you can use this notebook to quickly get started. 
 
-8. For documentation on the Databricks asset bundles format used
+10. For documentation on the Databricks asset bundles format used
    for this project, and for CI/CD configuration, see [here](https://docs.databricks.com/dev-tools/bundles/index.html).
 
 # Local Development
