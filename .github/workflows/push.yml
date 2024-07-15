@@ -35,6 +35,7 @@ jobs:
       - name: Run unit tests
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
+          make dev
           make test
 
   fmt:
