@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "clusters-cost-allocation"
 version = "0.0.1"
-description = "Application for granular cost allocation for SQL Warehouses"
-authors = ["Marcin Wojtyczka <marcin.wojtyczka@databricks.com>"]
+description = "Application for granular cost allocation of SQL Warehouses"
+authors = ["Marcin Wojtyczka <wojtyczka.marcin@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

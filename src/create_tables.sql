@@ -14,7 +14,7 @@ USE CATALOG ${output_catalog};
 -- MAGIC     print(f"Dropping schema: {output_schema}")
 -- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {output_schema} cascade")
 -- MAGIC
--- MAGIC print(f"Creating schema: {output_schema}")
+-- MAGIC print(f"Creating schema: {schema}")
 
 -- COMMAND ----------
 

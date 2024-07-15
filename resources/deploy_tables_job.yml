@@ -7,9 +7,9 @@ resources:
       #run_as:
       #  service_principal_name: xxx
 
-      email_notifications:
-        on_failure:
-          - marcin.wojtyczka@databricks.com
+#      email_notifications:
+#        on_failure:
+#          - user@company.com
 
       tasks:
         - task_key: create_tables

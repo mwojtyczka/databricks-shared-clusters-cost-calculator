@@ -19,7 +19,7 @@ setup(
     # to ensure that changes to wheel package are picked up when used on all-purpose clusters
     version=clusters_cost_allocation.__version__ + "+" + datetime.datetime.utcnow().strftime("%Y%m%d.%H%M%S"),
     url="https://databricks.com",
-    author="marcin.wojtyczka@databricks.com",
+    author="wojtyczka.marcin@gmail.com",
     description="wheel file based on clusters_cost_allocation/src",
     packages=find_packages(where='./src'),
     package_dir={'': 'src'},
