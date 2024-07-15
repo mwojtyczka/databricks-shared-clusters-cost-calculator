@@ -9,8 +9,8 @@ def run_cost_agg_day(
     catalog: str,
     schema: str,
 ):
-    print(f"Using catalog: {catalog}")
-    print(f"Using schema: {schema}")
+    print(f"Using output catalog: {catalog}")
+    print(f"Using output schema: {schema}")
 
     catalog_and_schema = catalog + "." + schema
     io = CostCalculatorIO(spark, catalog_and_schema)
@@ -52,8 +52,8 @@ def main(catalog: str, schema: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--catalog", type=str, help="Catalog name to use")
-    parser.add_argument("--schema", type=str, help="Schema name to use")
+    parser.add_argument("--catalog", type=str, help="Catalog name for storing the results")
+    parser.add_argument("--schema", type=str, help="Schema name for storing the results")
     args = parser.parse_args()
 
     paramName1 = args.paramName1

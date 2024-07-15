@@ -4,25 +4,25 @@
 
 -- COMMAND ----------
 
-USE CATALOG ${catalog};
+USE CATALOG ${output_catalog};
 
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC schema = dbutils.widgets.get("schema")
+-- MAGIC schema = dbutils.widgets.get("output_schema")
 -- MAGIC if dbutils.widgets.get("recreate_schema").lower() == "true":
--- MAGIC     print(f"Dropping schema: {schema}")
--- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {schema} cascade")
+-- MAGIC     print(f"Dropping schema: {output_schema}")
+-- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {output_schema} cascade")
 -- MAGIC
--- MAGIC print(f"Creating schema: {schema}")
+-- MAGIC print(f"Creating schema: {output_schema}")
 
 -- COMMAND ----------
 
-CREATE SCHEMA IF NOT EXISTS ${schema};
+CREATE SCHEMA IF NOT EXISTS ${output_schema};
 
 -- COMMAND ----------
 
-USE SCHEMA ${schema};
+USE SCHEMA ${output_schema};
 
 -- COMMAND ----------
 

@@ -21,11 +21,11 @@ resources:
           job_cluster_key: job_cluster
           #existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
-            notebook_path: ../src/fetch_user_info.py
+            notebook_path: ../src/fetch_user_info_ad.py
             source: WORKSPACE
             base_parameters:
-              catalog: "main"
-              schema: "billing_usage_granular"
+              output_catalog: "main"
+              output_schema: "billing_usage_granular"
 
       job_clusters:
         - job_cluster_key: job_cluster
