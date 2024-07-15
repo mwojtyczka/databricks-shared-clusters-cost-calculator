@@ -14,7 +14,7 @@ include:
 
 variables:
   user_name:
-    default: marcin.wojtyczka@databricks.com
+    default: user@company.com
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
@@ -26,7 +26,7 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://e2-dogfood.staging.cloud.databricks.com/?o=6051921418418893
+      host: https://<dev-workspace-url>/
 
   # The 'prod' target, used for production deployment.
   prod:
@@ -34,7 +34,7 @@ targets:
     # Doing so enables strict verification of the settings below.
     mode: production
     workspace:
-      host: https://e2-dogfood.staging.cloud.databricks.com/?o=6051921418418893
+      host: https://<prod-workspace-url>/
       root_path: /Users/${var.user_name}/.bundle/${bundle.name}/${bundle.target}
     run_as:
       # We could also use a service principal here,
