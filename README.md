@@ -116,14 +116,18 @@ and databricks user name to use for the execution.
    
 8. Run the jobs:
 
+   a) Deploy tables:
    ```
-   # deploy tables
    $ databricks bundle run create_tables_job --target dev
+   ```
    
-   # run the calculation
+   b) Run the calculation:
+   ```
    $ databricks bundle run calculate_job --target dev
+   ```
    
-   # run job to fetch user info
+   c) Fetch user info from IdP:
+   ```
    $ databricks bundle run fetch_user_info_job --target dev
    ```
    
