@@ -11,8 +11,8 @@ USE CATALOG ${output_catalog};
 -- MAGIC %python
 -- MAGIC schema = dbutils.widgets.get("output_schema")
 -- MAGIC if dbutils.widgets.get("recreate_schema").lower() == "true":
--- MAGIC     print(f"Dropping schema: {output_schema}")
--- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {output_schema} cascade")
+-- MAGIC     print(f"Dropping schema: {schema}")
+-- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {schema} cascade")
 -- MAGIC
 -- MAGIC print(f"Creating schema: {schema}")
 

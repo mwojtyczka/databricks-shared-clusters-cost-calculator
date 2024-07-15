@@ -22,6 +22,7 @@ See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 * [Installation](#installation)
 * [Design](#design)
 * [Local Development](#local-development)
+* [Contribution](#contribution)
 * [Limitations](#limitations)
 * [Future Work](#future-work)
 <!-- TOC -->
@@ -62,19 +63,24 @@ and databricks user name to use for the execution.
 
    * Entra ID: configure [this notebook](src/cluster_cost_allocation/fetch_user_info_ad.py)
 
-6. Deploy a development copy of this project to the workspace:
+6. Validate bundle configuration:
+    ```
+    $ databricks bundle validate --target dev
+    ```
+
+    Note that "dev" is the default target, so the `--target` parameter is optional here. 
+
+7. Deploy a development copy of this project to the workspace:
     ```
     $ databricks bundle deploy --target dev
     ```
 
-    Note that "dev" is the default target, so the `--target` parameter is optional here.    
-
-7. Similarly, if you want to deploy a production copy of this project to the workspace:
+8. Similarly, if you want to deploy a production copy of this project to the workspace:
    ```
    $ databricks bundle deploy --target prod
    ```
    
-8. Run the jobs:
+9. Run the jobs:
 
    a) Deploy tables:
    ```
@@ -91,14 +97,14 @@ and databricks user name to use for the execution.
    $ databricks bundle run fetch_user_info_job --target dev
    ```
    
-9. If you want to visualize the results:
+10. If you want to visualize the results:
 
     * Import [this dashboard](lake_view/dashboard.json).
     * Import [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
       You can use this to quickly get started before fetching the user info from your IdP provider.
       Before you run the notebook provide (via widget) the catalog and schema name where the user info table is located.
 
-10. For documentation on the Databricks asset bundles format used
+11. For documentation on the Databricks asset bundles format used
    for this project, and for CI/CD configuration, see [here](https://docs.databricks.com/dev-tools/bundles/index.html).
 
 # Design
@@ -157,29 +163,18 @@ The last processed day is persisted in a **checkpoint** table.
 
 Follow the below steps to run the project on your local machine.
 
-## Setting up Poetry
+### Set up Poetry
 
 https://python-poetry.org/docs/
 
-## Install project requirements
+### Build the project
 
-```bash
-poetry install
-```
-
-## Update project requirements
-
-```bash
-poetry update
-```
-
-## Building the project: install dependencies, format, lint, test
-
+Run all the steps (install dependencies, format, lint, test etc.):
 ```bash
 make all
 ```
 
-## Setting up your IDE
+### Set up your IDE
 
 Get path to poetry virtual env so that you can setup interpreter in your IDE
 
@@ -193,7 +188,7 @@ Activate poetry virtual environment:
 source $(poetry env info --path)/bin/activate
 ```
 
-## Runing individual tests
+### Run individual tests
 
 * Unit testing:
 
@@ -214,15 +209,16 @@ source $(poetry env info --path)/bin/activate
 pytest tests/e2e --cov
 ```
 
-## Reinstalling poetry virtual env (in case of issues)
+### Troubleshooting
 
+Restart poetry virtual env (in case of issues with poetry):
 ```
 poetry env list
 poetry env remove project-name-py3.10
 poetry install
 ```
 
-# Contribute
+# Contribution
 
 See contribution guidance [here](CONTRIBUTING.md).
 
