@@ -51,13 +51,7 @@ jobs:
       - name: Format all files
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          make dev fmt lint
-
-      - name: Lint all files
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          pip install pylint pycodestyle autoflake
-          make dev lint
+          make dev fmt
 
       - name: Fail on differences
         run: git diff --exit-code ":(exclude)poetry.lock"
@@ -71,5 +65,4 @@ jobs:
       - name: Lint all files
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          pip install pylint pycodestyle autoflake
           make dev lint

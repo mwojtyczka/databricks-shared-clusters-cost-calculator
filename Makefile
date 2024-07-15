@@ -1,4 +1,4 @@
-.PHONY: clean dev fmt lint test coverage
+.PHONY: clean dev fmt lint test coverage display_coverage
 
 # existing VIRTUAL_ENV might mess with poetry, so making sure it is gone
 VIRTUAL_ENV=
@@ -17,9 +17,9 @@ fmt: ## run black to format the code
 	poetry run black src tests
 
 lint: ## run linter to check the code
-	pycodestyle src
-	autoflake --check-diff --quiet --recursive src
-	pylint --output-format=colorized -j 0 src
+	poetry run pycodestyle src
+	poetry run autoflake --check-diff --quiet --recursive src
+	poetry run pylint --output-format=colorized -j 0 src
 
 clean:
 	rm -fr dist *.egg-info .pytest_cache build coverage .junittest*.xml coverage.xml .coverage* sphinx_docs/_build **/__pycache__
@@ -30,4 +30,6 @@ test: ## run pytest
 coverage:
 	poetry run pytest --cov src --cov-report=xml tests/unit --durations 20
 	poetry run pytest --cov src tests/unit --cov-report=html --durations 20
+
+display_coverage:
 	open htmlcov/index.html
