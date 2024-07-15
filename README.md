@@ -145,27 +145,31 @@ and databricks user name to use for the execution.
 
 Follow the below steps to run the project on your local machine.
 
-## Building the project: installing dependencies, formatting, linting, testing
+## Setting up Poetry
 
-```bash
-make all
-```
+https://python-poetry.org/docs/
 
-## Setting up IDE
-
-### Installing project requirements
+## Install project requirements
 
 ```bash
 poetry install
 ```
 
-### Updating project requirements
+## Update project requirements
 
 ```bash
 poetry update
 ```
 
-### Get path to poetry virtual env so that you can setup interpreter in your IDE
+## Building the project: install dependencies, format, lint, test
+
+```bash
+make all
+```
+
+## Setting up your IDE
+
+Get path to poetry virtual env so that you can setup interpreter in your IDE
 
 ```bash
 echo $(poetry env info --path)/bin
@@ -177,7 +181,7 @@ Activate poetry virtual environment:
 source $(poetry env info --path)/bin/activate
 ```
 
-## Running individual tests
+## Runing individual tests
 
 * Unit testing:
 
