@@ -940,6 +940,21 @@ spelling = ["pyenchant (>=3.2,<4.0)"]
 testutils = ["gitpython (>3)"]
 
 [[package]]
+name = "pylint-pytest"
+version = "2.0.0a0"
+description = "A Pylint plugin to suppress pytest-related false positives."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pylint-pytest-2.0.0a0.tar.gz", hash = "sha256:78f44012d005cc74ffe3136bcc766a8624ada17d63e47ed67c033958d49c133b"},
+    {file = "pylint_pytest-2.0.0a0-py3-none-any.whl", hash = "sha256:8c2223680619f1e34a3e82cfab9c9d1fbfd0558c321c35196a74a1a4babfbf6c"},
+]
+
+[package.dependencies]
+pylint = ">=2,<4"
+pytest = ">=4.6"
+
+[[package]]
 name = "pyspark"
 version = "3.5.0"
 description = "Apache Spark Python API"
@@ -1149,4 +1164,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "00f6e69218db9950175f21782ff77bf1fbc8478287857f2ab08d5ff781eb7030"
+content-hash = "e206826fd6d65bacbf74e0c2dd07410466441fb5187060ce643246dd36b5876a"

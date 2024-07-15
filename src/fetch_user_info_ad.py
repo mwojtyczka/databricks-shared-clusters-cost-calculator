@@ -1,4 +1,5 @@
 # Databricks notebook source
+# pylint: skip-file
 # MAGIC %md
 # MAGIC # Use this notebook to fetch user info from Microsoft Entra ID
 
@@ -87,14 +88,14 @@ def extract_business_unit_from_name(name: str) -> str:
     # Check if result is found and get the M
     if result:
         return result.group(1)
-    else:
-        print(f"Error for user {name}")
-        return "MISSING_BU"
+
+    print(f"Error for user {name}")
+    return "MISSING_BU"
 
 
 def get_cost_center_for_user(email: str) -> str:
     url = f"https://graph.microsoft.com/v1.0/users/{email}?$select=id,userPrincipalName,onPremisesExtensionAttributes"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=360)
     return response.json()["onPremisesExtensionAttributes"]["extensionAttribute2"]
 
 
