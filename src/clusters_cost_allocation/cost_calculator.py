@@ -1,3 +1,9 @@
+from datetime import datetime, date
+from functools import reduce
+from operator import add
+from pyspark.sql import Row
+from pyspark.sql.window import Window
+
 from pyspark.sql.functions import (
     col,
     explode,
@@ -5,26 +11,23 @@ from pyspark.sql.functions import (
     date_format,
     expr,
     when,
-    sum,
     to_date,
     lit,
-    round,
 )
+
+from pyspark.sql.functions import sum as spark_sum
+from pyspark.sql.functions import round as spark_round
+from pyspark.sql.functions import max as spark_max
+
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (
     StructType,
     StructField,
     DateType,
 )
-from datetime import datetime, date
-from pyspark.sql import Row
-from pyspark.sql.functions import max
-from pyspark.sql.window import Window
-from functools import reduce
-from operator import add
 
 
-class CostCalculatorIO(object):
+class CostCalculatorIO:
     def __init__(self, spark: SparkSession, catalog_and_schema):
         self.spark = spark
         self.catalog_and_schema = catalog_and_schema
@@ -41,8 +44,8 @@ class CostCalculatorIO(object):
             df = df.withColumn(column + "_new", to_date(col(column)))
             date_str = df.agg({column + "_new": "max"}).collect()[0][0]
             return datetime.strptime(str(date_str), "%Y-%m-%d").date()
-        else:
-            return None
+
+        return None
 
     def save_checkpoint(self, table: str, new_checkpoint_date: date):
         full_table = self._construct_full_table(table)
@@ -212,7 +215,7 @@ class CostCalculatorIO(object):
         return df.withColumn("cost", col("cost").cast("decimal(38,2)"))
 
 
-class CostCalculator(object):
+class CostCalculator:
 
     def calculate_cost_agg_day(
         self,
@@ -253,7 +256,9 @@ class CostCalculator(object):
 
         # Calculate max values for each metric
         max_values = {
-            col_to_norm: max(col_to_norm).over(window_spec).alias(f"max_{col_to_norm}")
+            col_to_norm: spark_max(col_to_norm)
+            .over(window_spec)
+            .alias(f"max_{col_to_norm}")
             for col_to_norm in metrics
         }
 
@@ -298,12 +303,12 @@ class CostCalculator(object):
             "account_id",
             "warehouse_id",
             "workspace_id",
-        ).agg(sum("contribution").alias("contribution"))
+        ).agg(spark_sum("contribution").alias("contribution"))
 
         # Calculate the total sum of contributions across all users
         total_contributions_df = weigthed_sum_df.groupBy(
             "billing_date", "account_id", "warehouse_id", "workspace_id"
-        ).agg(sum("contribution").alias("total_contribution"))
+        ).agg(spark_sum("contribution").alias("total_contribution"))
 
         # Normalize contributions
         normalized_df = (
@@ -353,13 +358,13 @@ class CostCalculator(object):
             )
             .withColumn(
                 "dbu",
-                round(
+                spark_round(
                     col("normalized_contribution") * col("usage_quantity") / 100, 2
                 ).cast("decimal(38,2)"),
             )
             .withColumn(
                 "dbu_cost",
-                round(
+                spark_round(
                     col("normalized_contribution") * col("usage_quantity_cost") / 100, 2
                 ).cast("decimal(38,2)"),
             )
@@ -396,9 +401,9 @@ class CostCalculator(object):
             )
             .withColumn(
                 "cloud_cost",
-                round(col("cost") * col("dbu_contribution_percent") / 100, 2).cast(
-                    "decimal(38,2)"
-                ),
+                spark_round(
+                    col("cost") * col("dbu_contribution_percent") / 100, 2
+                ).cast("decimal(38,2)"),
             )
             .drop("cost")
         )

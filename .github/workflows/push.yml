@@ -35,8 +35,12 @@ jobs:
       - name: Run unit tests
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          make dev
-          make test
+          make dev test coverage
+
+      - name: Publish test coverage
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   fmt:
     runs-on: ubuntu-latest
@@ -47,8 +51,18 @@ jobs:
       - name: Format all files
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          make dev
           make dev fmt
 
       - name: Fail on differences
         run: git diff --exit-code ":(exclude)poetry.lock"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Lint all files
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          make dev lint
