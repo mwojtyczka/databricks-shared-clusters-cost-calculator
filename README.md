@@ -102,10 +102,7 @@ and databricks user name to use for the execution.
     * Import [this dashboard](lake_view/dashboard.json).
     * Import [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
       You can use this to quickly get started before fetching the user info from your IdP provider.
-      Before you run the notebook provide (via widget) the catalog and schema name where the user info table is located.
-
-11. For documentation on the Databricks asset bundles format used
-   for this project, and for CI/CD configuration, see [here](https://docs.databricks.com/dev-tools/bundles/index.html).
+      Before you run the notebook, provide the catalog and schema name of the user info table via widgets.
 
 # Design
 
