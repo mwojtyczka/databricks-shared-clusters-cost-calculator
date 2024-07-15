@@ -46,6 +46,8 @@ jobs:
 
       - name: Format all files
         run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          make dev
           make dev fmt
 
       - name: Fail on differences
