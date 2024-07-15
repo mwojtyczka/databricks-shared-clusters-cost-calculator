@@ -993,7 +993,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(100.00),
                 Decimal(50.00),
                 Decimal(80.00),
-                "EUR"
+                "EUR",
             ),
             # Test case 2: queries from 2 users
             (
@@ -1007,7 +1007,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(50.00),
                 Decimal(25.00),
                 Decimal(30.00),
-                "EUR"
+                "EUR",
             ),
             (
                 "account1",
@@ -1020,7 +1020,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(50.00),
                 Decimal(25.00),
                 Decimal(30.00),
-                "EUR"
+                "EUR",
             ),
             # Test case 3: different warehouse
             (
@@ -1034,7 +1034,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(100.00),
                 Decimal(50.00),
                 Decimal(60.00),
-                "EUR"
+                "EUR",
             ),
             # Test case 4: different workspace
             (
@@ -1048,7 +1048,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(100.00),
                 Decimal(50.00),
                 Decimal(60.00),
-                "EUR"
+                "EUR",
             ),
             # Test case 5: different account
             (
@@ -1062,7 +1062,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(100.00),
                 Decimal(100.00),
                 Decimal(60.00),
-                "EUR"
+                "EUR",
             ),
             (
                 "account1",
@@ -1075,7 +1075,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(0.00),
                 Decimal(0.00),
                 None,
-                "EUR"
+                "EUR",
             ),
             (
                 "account1",
@@ -1088,7 +1088,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
                 Decimal(0.00),
                 Decimal(0.00),
                 None,
-                "EUR"
+                "EUR",
             ),
         ],
         cost_agg_day_schema,
@@ -1363,7 +1363,7 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                 Decimal(80.00),
                 Decimal(40.00),
                 Decimal(90.00),
-                "EUR"
+                "EUR",
             ),
             # contribution should be 0 since the metric in question is 0
             (
@@ -1377,7 +1377,7 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                 Decimal(0.00),
                 Decimal(0.00),
                 Decimal(0.00),
-                "EUR"
+                "EUR",
             ),
             (
                 "account1",
@@ -1390,7 +1390,7 @@ def test_calculate_daily_costs_missing_cloud_infra_cost(
                 Decimal(90.00),
                 Decimal(45.00),
                 None,
-                "EUR"
+                "EUR",
             ),
         ],
         cost_agg_day_schema,

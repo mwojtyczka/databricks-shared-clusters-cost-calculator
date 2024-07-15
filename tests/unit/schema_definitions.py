@@ -153,4 +153,3 @@ cost_agg_day_schema = StructType(
         StructField("currency_code", StringType(), False),
     ]
 )
-
