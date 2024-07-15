@@ -13,7 +13,7 @@ pyspark = "3.5.0"
 pytest = "^8.0.1"
 pytest-cov = "^4.0.0"
 pytest-spark = "^0.6.0"
-chispa = "^0.9.2"
+chispa = "^0.10.0"
 databricks-sdk = "^0.29.0"
 databricks-connect = "14.2.1" # cannot be higher than DBR version!
 
