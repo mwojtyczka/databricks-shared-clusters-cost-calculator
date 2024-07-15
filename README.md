@@ -3,17 +3,6 @@
 This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective 
 organisational entities (e.g. cost center, departments / business units).
 
-Once the project is deployed, the following Jobs are created in your Databricks Workspace:
-* `granular billing usage: 1. create tables`
-* `granular billing usage: 2. calculate`
-* `granular billing usage: 3. fetch user info` (requires additional configuration)
-
-Deploy and execute them in the given order (see [Getting started](#getting-started)).
-
-To visualize the cost calculation results, Databricks Dashboard can be used (sample available as part of the project).
-
-# Problem
-
 Many organizations would like to adopt a "cost centre" approach by invoicing DBU consumption against individual users, 
 teams, business units/departments, or cost centers. 
 Currently, Databricks provides DBU consumption data for the entire cluster, 
@@ -23,58 +12,19 @@ organizational entities to unify cluster configuration and maximize utilization.
 
 ![problem](docs/problem.png?)
 
-# Solution
+For questions, troubleshooting or bug fixes, please submit [an issue](https://github.com/mwojtyczka/databricks-shared-clusters-cost-calculator/issues).
+See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 
-The solution provides granular cost allocation for queries run by users on "Shared" SQL Warehouses.
-The solution uses numerous system tables to perform the calculation and write the granular cost allocation to a Delta table. 
+[![build](https://github.com/mwojtyczka/databricks-shared-clusters-cost-calculator/actions/workflows/push.yml/badge.svg)](https://github.com/mwojtyczka/databricks-shared-clusters-cost-calculator/actions/workflows/push.yml) [![codecov](https://codecov.io/github/mwojtyczka/databricks-shared-clusters-cost-calculator/graph/badge.svg?token=p0WKAfW5HQ)](https://codecov.io/github/mwojtyczka/databricks-shared-clusters-cost-calculator)  ![linesofcode](https://aschey.tech/tokei/github/mwojtyczka/databricks-shared-clusters-cost-calculator?category=code)
 
-![architecture](docs/architecture.png?)
-
-An alternative solution is to create separate clusters for each department. 
-However, this would require managing different clusters by the consumers (e.g. PowerBI) 
-and won't provide per user cost allocation.
-
-### Input
-
-For the **cost calculation** the following system tables are required:
-* Billing usage system table ([system.billing.usage](https://docs.databricks.com/en/admin/system-tables/billing.html)) containing DBU consumption of SQL Warehouses per day from all UC-enabled workspaces.
-* Query History system table (`system.query.history`) containing query history of SQL Warehouses from all UC-enabled workspaces. Currently in Private Preview.
-* List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing.
-* Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage). Currently in Private Preview.
-
-For the **dashboard** to be able to map users to departments / cost centers the following table is required:
-* User Info table (`user_info`) contains mapping of users to cost centers and departments. 
-This table can be pre-populated based on extension attributes from the IdP providers. 
-See example notebook for Microsoft Entra ID [here](src/fetch_user_info_ad.py).
-
-![problem](docs/user_info_table.png?)
-
-### Output
-
-The result is saved as Delta table and gives DBU consumption for each user and cluster. 
-The data is aggregated daily and stored in the Cost Agg Day table (`cost_agg_day`).
-Only users that have consumed any DBUs in the given day are included.
-
-![problem](docs/cost_agg_day_table.png?)
-
-
-[Rows filters](https://docs.databricks.com/en/tables/row-and-column-filters.html) can be applied to the table to ensure
-only specific rows can be viewed by specific departments/users. 
-The table can be joined to the User Info table (user_info) to retrieve additional contextual information 
-about the users (e.g. cost center, department).
-
-### Cost Calculation
-
-Cost calculation is implemented as a Databricks job and is scheduled to run daily. 
-The calculation uses a **weighted sum approach** to calculate the contribution of user queries 
-in the total DBU consumption of SQL Warehouse clusters. 
-Idle time is split according to the contribution of each user in the cluster usage.
-The metrics and assigned weights can be found [here](src/clusters_cost_allocation/metrics.py).
-
-The calculation is done incrementally (only queries not processed yet). 
-The last processed day is persisted in a **checkpoint** table.
-
-![problem](docs/checkpoint_table.png?)
+<!-- TOC -->
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [Design](#design)
+* [Local Development](#local-development)
+* [Limitations](#limitations)
+* [Future Work](#future-work)
+<!-- TOC -->
 
 # Prerequisites
 
@@ -82,9 +32,19 @@ In order to deploy the project, the following is required:
 * Access to a [Databricks Workspace](https://docs.databricks.com/en/getting-started/index.html) enabled for [Unity Catalog](https://docs.databricks.com/en/data-governance/unity-catalog/index.html)
 * Access to [system tables](https://docs.databricks.com/en/admin/system-tables/index.html#grant-access-to-system-tables)
 
-# Getting started
+# Installation
 
 The project uses [Databricks Assets Bundles (DAB)](https://docs.databricks.com/en/dev-tools/bundles/index.html) for deployment.
+
+Once the project is deployed, the following Jobs are created in your Databricks Workspace:
+* `granular billing usage: 1. create tables`
+* `granular billing usage: 2. calculate`
+* `granular billing usage: 3. fetch user info` (requires additional configuration)
+
+Deploy and execute them in the given order. 
+To visualize the cost calculation results, Databricks Dashboard can be used (sample available as part of the project).
+
+**Steps:**
 
 1. Install the Databricks CLI (see [here](https://docs.databricks.com/dev-tools/cli/databricks-cli.html)).
 
@@ -140,6 +100,58 @@ and databricks user name to use for the execution.
 
 10. For documentation on the Databricks asset bundles format used
    for this project, and for CI/CD configuration, see [here](https://docs.databricks.com/dev-tools/bundles/index.html).
+
+# Design
+
+The solution provides granular cost allocation for queries run by users on "Shared" SQL Warehouses.
+The solution uses numerous system tables to perform the calculation and write the granular cost allocation to a Delta table. 
+
+![architecture](docs/architecture.png?)
+
+An alternative solution is to create separate clusters for each department. 
+However, this would require managing different clusters by the consumers (e.g. PowerBI) 
+and won't provide per user cost allocation.
+
+### Input
+
+For the **cost calculation** the following system tables are required:
+* Billing usage system table ([system.billing.usage](https://docs.databricks.com/en/admin/system-tables/billing.html)) containing DBU consumption of SQL Warehouses per day from all UC-enabled workspaces.
+* Query History system table (`system.query.history`) containing query history of SQL Warehouses from all UC-enabled workspaces. Currently in Private Preview.
+* List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing.
+* Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage). Currently in Private Preview.
+
+For the **dashboard** to be able to map users to departments / cost centers the following table is required:
+* User Info table (`user_info`) contains mapping of users to cost centers and departments. 
+This table can be pre-populated based on extension attributes from the IdP providers. 
+See example notebook for Microsoft Entra ID [here](src/fetch_user_info_ad.py).
+
+![problem](docs/user_info_table.png?)
+
+### Output
+
+The result is saved as Delta table and gives DBU consumption for each user and cluster. 
+The data is aggregated daily and stored in the Cost Agg Day table (`cost_agg_day`).
+Only users that have consumed any DBUs in the given day are included.
+
+![problem](docs/cost_agg_day_table.png?)
+
+[Rows filters](https://docs.databricks.com/en/tables/row-and-column-filters.html) can be applied to the table to ensure
+only specific rows can be viewed by specific departments/users. 
+The table can be joined to the User Info table (user_info) to retrieve additional contextual information 
+about the users (e.g. cost center, department).
+
+### Cost Calculation
+
+Cost calculation is implemented as a Databricks job and is scheduled to run daily. 
+The calculation uses a **weighted sum approach** to calculate the contribution of user queries 
+in the total DBU consumption of SQL Warehouse clusters. 
+Idle time is split according to the contribution of each user in the cluster usage.
+The metrics and assigned weights can be found [here](src/clusters_cost_allocation/metrics.py).
+
+The calculation is done incrementally (only queries not processed yet). 
+The last processed day is persisted in a **checkpoint** table.
+
+![problem](docs/checkpoint_table.png?)
 
 # Local Development
 

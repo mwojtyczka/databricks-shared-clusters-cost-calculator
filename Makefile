@@ -26,3 +26,5 @@ clean:
 
 test: ## run pytest
 	poetry run pytest -rA -vvs --log-level INFO
+	poetry run pytest --cov src --cov-report=xml tests/unit --durations 20
+	poetry run pytest --cov src tests/unit --cov-report=html --durations 20
