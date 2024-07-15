@@ -45,7 +45,7 @@ Once the project is deployed, the following Jobs are created in your Databricks 
 Deploy and execute them in the given order. 
 To visualize the cost calculation results, Databricks Dashboard can be used (sample available as part of the project).
 
-**Steps:**
+### Steps:
 
 1. Install the Databricks CLI (see [here](https://docs.databricks.com/dev-tools/cli/databricks-cli.html)).
 
