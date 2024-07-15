@@ -7,7 +7,7 @@ unexport VIRTUAL_ENV
 help:
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9._-]+:.*?## / {printf "\033[1m\033[36m%-38s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-all: clean dev fmt lint test coverage display_coverage ## run all steps
+all: clean dev fmt lint test coverage display_coverage ## run all commands
 
 dev: ## install dependencies and the package to poetry venv
 	poetry install
