@@ -52,8 +52,12 @@ def main(catalog: str, schema: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--catalog", type=str, help="Catalog name for storing the results")
-    parser.add_argument("--schema", type=str, help="Schema name for storing the results")
+    parser.add_argument(
+        "--catalog", type=str, help="Catalog name for storing the results"
+    )
+    parser.add_argument(
+        "--schema", type=str, help="Schema name for storing the results"
+    )
     args = parser.parse_args()
 
     paramName1 = args.paramName1

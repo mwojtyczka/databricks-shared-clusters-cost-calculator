@@ -19,6 +19,7 @@ fmt: ## run black to format the code
 lint: ## run linter to check the code
 	pycodestyle src
 	autoflake --check-diff --quiet --recursive src
+	#pylint --output-format=colorized -j 0 src
 
 clean:
 	rm -fr dist *.egg-info .pytest_cache build coverage .junittest*.xml coverage.xml .coverage* sphinx_docs/_build **/__pycache__
