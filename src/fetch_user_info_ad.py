@@ -10,8 +10,8 @@
 
 # COMMAND ----------
 
-catalog = dbutils.widgets.get("catalog")
-schema = dbutils.widgets.get("schema")
+catalog = dbutils.widgets.get("output_catalog")
+schema = dbutils.widgets.get("output_schema")
 
 # COMMAND ----------
 

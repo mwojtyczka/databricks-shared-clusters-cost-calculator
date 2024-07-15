@@ -19,8 +19,8 @@ resources:
             notebook_path: ../src/create_tables.sql
             source: WORKSPACE
             base_parameters:
-              catalog: "main"
-              schema: "billing_usage_granular"
+              output_catalog: "main"
+              output_schema: "billing_usage_granular"
               recreate_schema: "false"
 
       job_clusters:

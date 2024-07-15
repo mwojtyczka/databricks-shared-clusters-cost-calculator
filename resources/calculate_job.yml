@@ -24,15 +24,15 @@ resources:
             notebook_path: ../src/run_cost_agg_day.py
             source: WORKSPACE
             base_parameters:
-              catalog: "main"
-              schema: "billing_usage_granular"
+              output_catalog: "main"
+              output_schema: "billing_usage_granular"
 
 #          python_wheel_task:
 #            package_name: granular_cluster_cost
 #            entry_point: main
 #            named_parameters:
-#              catalog: "main"
-#              schema: "billing_usage_granular"
+#              output_catalog: "main"
+#              output_schema: "billing_usage_granular"
 #          libraries:
 #            - whl: ../dist/*.whl
 
