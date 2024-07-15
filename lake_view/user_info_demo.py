@@ -1,11 +1,27 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC ## Run this notebook manually to setup additional sample data for the dashboard!
+# MAGIC # Run this notebook manually to setup additional sample data for the dashboard!
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Populating User Info table
+# MAGIC ## Define output catalog and schema
+
+# COMMAND ----------
+
+dbutils.widgets.text("output_catalog", "main")
+dbutils.widgets.text("output_schema", "billing_usage_granular")
+
+catalog = dbutils.widgets.get("output_catalog")
+schema = dbutils.widgets.get("output_schema")
+
+catalog_and_schema = f"{catalog}.{schema}"
+print(f"Use {catalog_and_schema}")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Populate User Info table with auto=generated data
 
 # COMMAND ----------
 
@@ -20,7 +36,7 @@ department_cost_center_pairs = [
     ("PS", "703")
 ]
 
-users = spark.table("main.billing_usage_granular.cost_agg_day").select("user_name")
+users = spark.table(f"{catalog_and_schema}.cost_agg_day").select("user_name")
 
 # Define user_info_schema
 user_info_schema = StructType(
@@ -47,39 +63,8 @@ def create_user_info(data_df):
     return spark.createDataFrame(user_info_list, schema=user_info_schema)
 
 user_info_df = create_user_info(users)
-user_info_df.write.mode("overwrite").saveAsTable("main.billing_usage_granular.user_info")
+user_info_df.write.mode("overwrite").saveAsTable(f"{catalog_and_schema}.user_info")
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC select * from main.billing_usage_granular.user_info
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC CREATE TABLE IF NOT EXISTS main.billing_usage_granular.budgets(
-# MAGIC   department string NOT NULL,
-# MAGIC   monthly_budget long NOT NULL,
-# MAGIC   weekly_budget long NOT NULL,
-# MAGIC   CONSTRAINT budgets_pk PRIMARY KEY(department)
-# MAGIC );
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Populating Budget
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC INSERT INTO main.billing_usage_granular.budgets(department, monthly_budget, weekly_budget)
-# MAGIC SELECT "R&D", 400, 70
-# MAGIC UNION
-# MAGIC SELECT "FE", 300, 60
-# MAGIC UNION
-# MAGIC SELECT "PS", 200, 50
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC select * from main.billing_usage_granular.budgets
+display(user_info_df)

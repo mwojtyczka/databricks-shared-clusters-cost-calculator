@@ -1,17 +1,33 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Info
-# MAGIC - Generate token for Graph API: `az account get-access-token --resource-type ms-graph`
+# MAGIC # Use this notebook to fetch user info from Microsoft Entra ID
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # Set up Databricks client
+# MAGIC ## Define output catalog and schema
 
 # COMMAND ----------
 
+dbutils.widgets.text("output_catalog", "main")
+dbutils.widgets.text("output_schema", "billing_usage_granular")
+
 catalog = dbutils.widgets.get("output_catalog")
 schema = dbutils.widgets.get("output_schema")
+
+catalog_and_schema = f"{catalog}.{schema}"
+print(f"Use {catalog_and_schema}")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Generate token for Graph API:
+# MAGIC `az account get-access-token --resource-type ms-graph`
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Setup Databricks client
 
 # COMMAND ----------
 
@@ -23,6 +39,7 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+# Setup authentication credentials for the Databricks Account
 account_id = "xxx"
 azure_client_id = "xxx"
 azure_tenant_id = "xxx"
@@ -104,4 +121,4 @@ user_info_df = spark.createDataFrame(account_users).where(
 
 user_info_df.where(col("cost_center").isNotNull()).write.format("delta").mode(
     "overwrite"
-).saveAsTable(catalog + "." + schema + "." + "user_info")
+).saveAsTable(f"{catalog_and_schema}.user_info")

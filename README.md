@@ -98,7 +98,7 @@ The project uses [Databricks Assets Bundles (DAB)](https://docs.databricks.com/e
 4. Update assets bundle configuration under [databricks.yml](databricks.yml) to provide workspace host 
 and databricks user name to use for the execution.
 
-5. Update script for fetching user info to provide authentication details for your IdP:
+5. Update a notebook for fetching user info to provide authentication details of your IdP:
 
    * Entra ID: configure [this notebook](src/cluster_cost_allocation/fetch_user_info_ad.py)
 
@@ -130,8 +130,9 @@ and databricks user name to use for the execution.
 9. If you want to visualize the results:
 
     * Import [this dashboard](lake_view/dashboard.json).
-    * Import and run [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
-      Since running the `fetch_user_info_job` job requires configuration, you can use this notebook to quickly get started. 
+    * Import [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
+      You can use this to quickly get started before fetching the user info from your IdP provider.
+      Before you run the notebook provide (via widget) the catalog and schema name where the user info table is located.
 
 10. For documentation on the Databricks asset bundles format used
    for this project, and for CI/CD configuration, see [here](https://docs.databricks.com/dev-tools/bundles/index.html).
