@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from functools import reduce
 from operator import add
+from collections.abc import KeysView
 
 from pyspark.sql import Row
 from pyspark.sql.window import Window
@@ -236,7 +237,7 @@ class CostCalculator:
 
     def calculate_cost_agg_day(
         self,
-        metric_to_weight_map: dict,
+        metric_to_weight_map: dict[str, float],
         queries_df,
         list_prices_df,
         billing_df,
@@ -258,7 +259,7 @@ class CostCalculator:
         return costs_all_df
 
     @staticmethod
-    def _normalize_metrics(queries_df, metrics: set):
+    def _normalize_metrics(queries_df, metrics: KeysView[str]):
         queries_df = queries_df.withColumnRenamed("executed_by", "user_name")
 
         window_spec = Window.partitionBy(
@@ -285,7 +286,9 @@ class CostCalculator:
         return normalized_df
 
     @staticmethod
-    def _calculate_weighted_sum(normalized_queries_df, metric_to_weight_map: dict):
+    def _calculate_weighted_sum(
+        normalized_queries_df, metric_to_weight_map: dict[str, float]
+    ):
         # Multiply each metric by its weight
         queries_and_weights_df = normalized_queries_df
         for norm_col in metric_to_weight_map.keys():

@@ -1,7 +1,7 @@
 import math
 
 
-def get_metric_to_weight_map():
+def get_metric_to_weight_map() -> dict[str, float]:
     """
     Get mapping of query metrics to weights.
     """
