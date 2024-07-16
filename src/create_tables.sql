@@ -10,11 +10,15 @@ USE CATALOG ${output_catalog};
 
 -- MAGIC %python
 -- MAGIC schema = dbutils.widgets.get("output_schema")
--- MAGIC if dbutils.widgets.get("recreate_schema").lower() == "true":
--- MAGIC     print(f"Dropping schema: {schema}")
--- MAGIC     spark.sql(f"DROP SCHEMA IF EXISTS {schema} cascade")
+-- MAGIC if dbutils.widgets.get("recreate_tables").lower() == "true":
+-- MAGIC     print(f"Dropping table: user_info")
+-- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.user_info")
+-- MAGIC     print(f"Dropping table: cost_agg_day")
+-- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.cost_agg_day")
+-- MAGIC     print(f"Dropping table: checkpoint")
+-- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.checkpoint")
 -- MAGIC
--- MAGIC print(f"Creating schema: {schema}")
+-- MAGIC print(f"Creating schema if not exists: {schema}")
 
 -- COMMAND ----------
 

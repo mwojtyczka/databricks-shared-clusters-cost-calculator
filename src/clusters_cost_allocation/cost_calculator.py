@@ -1,6 +1,8 @@
 from datetime import datetime, date
 from functools import reduce
 from operator import add
+from collections.abc import KeysView
+
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
@@ -28,103 +30,113 @@ from pyspark.sql.types import (
 
 
 class CostCalculatorIO:
-    def __init__(self, spark: SparkSession, catalog_and_schema):
+    def __init__(self, spark: SparkSession, catalog_and_schema: str):
         self.spark = spark
         self.catalog_and_schema = catalog_and_schema
 
-    def read_checkpoint(self, table: str):
+    def read_checkpoint(self, table: str) -> date | None:
         full_table = self._construct_full_table(table)
         print(f"Reading checkpoint from `{full_table}`")
 
         df = self.spark.table(full_table)
-        return self.get_max_date_col(df, "last_processed_date")
+        return self.get_max_date(df, "last_processed_date")
 
-    def get_max_date_col(self, df, column: str) -> date | None:
-        if df.count() > 0:
-            df = df.withColumn(column + "_new", to_date(col(column)))
-            date_str = df.agg({column + "_new": "max"}).collect()[0][0]
-            return datetime.strptime(str(date_str), "%Y-%m-%d").date()
-
-        return None
-
-    def save_checkpoint(self, table: str, new_checkpoint_date: date):
+    def save_checkpoint(self, table: str, new_checkpoint: date) -> None:
         full_table = self._construct_full_table(table)
 
         schema = StructType(
             [StructField("last_processed_date", DateType(), nullable=False)]
         )
 
-        if new_checkpoint_date is None:
-            new_checkpoint_date = datetime.now()
+        if new_checkpoint is None:
+            new_checkpoint = datetime.now().date()
 
         df = self.spark.createDataFrame(
-            [Row(last_processed_date=new_checkpoint_date)], schema
+            [Row(last_processed_date=new_checkpoint)], schema
         )
         df.write.mode("overwrite").saveAsTable(full_table)
 
-        print(f"Saved checkpoint to `{full_table}` as {new_checkpoint_date}")
+        print(f"Saved checkpoint to `{full_table}` as {new_checkpoint}")
 
-    def save_costs(self, costs_df, table: str, last_checkpoint_date: datetime):
+    def save_costs(self, costs_df, table: str, last_checkpoint: date) -> None:
         full_table = self._construct_full_table(table)
 
-        if last_checkpoint_date:
+        if last_checkpoint:
             self.spark.sql(
-                f"DELETE FROM {full_table} WHERE billing_date > '{last_checkpoint_date}'"
+                f"DELETE FROM {full_table} WHERE billing_date > '{last_checkpoint}'"
             )  # useful for reprocessing, just need to reset checkpoint
 
         costs_df.write.mode("append").saveAsTable(full_table)
 
         print(f"Saved cost calculation to `{full_table}`")
 
-    def _construct_full_table(self, table):
+    def _construct_full_table(self, table: str) -> str:
         return self.catalog_and_schema + "." + table
 
     def read_query_history(
         self,
         table: str,
-        last_checkpoint_date: datetime = None,
-        current_date: datetime = datetime.now(),
+        last_checkpoint: date = None,
+        current_date: date = datetime.now().date(),
     ):
         print(f"Reading query history from `{table}`")
         queries = self.spark.table(table)
-        return self.prepare_query_history(queries, last_checkpoint_date, current_date)
+        return self.prepare_query_history(queries, last_checkpoint, current_date)
 
-    def read_billing(self, table: str, last_checkpoint_date: datetime = None):
+    def read_billing(self, table: str, last_checkpoint: datetime = None):
         print(f"Reading billing from `{table}`")
         df = self.spark.table(table)
-        return self.prepare_billing(df, last_checkpoint_date)
+        return self.prepare_billing(df, last_checkpoint)
 
     def read_list_prices(self, table: str):
         print(f"Reading list prices from `{table}`")
         df = self.spark.table(table)
         return self.prepare_list_prices(df)
 
-    def read_cloud_infra_cost(self, table: str, last_checkpoint_date: datetime = None):
+    def read_cloud_infra_cost(self, table: str, last_checkpoint: datetime = None):
         print(f"Reading cloud infra cost from `{table}`")
         df = self.spark.table(table)
-        return self.prepare_cloud_infra_cost(df, last_checkpoint_date)
+        return self.prepare_cloud_infra_cost(df, last_checkpoint)
+
+    @staticmethod
+    def get_max_date(df, column: str) -> date | None:
+        if df.count() > 0:
+            df = df.withColumn(column + "_new", to_date(col(column)))
+            date_str = df.agg({column + "_new": "max"}).collect()[0][0]
+            return datetime.strptime(str(date_str), "%Y-%m-%d").date()
+        return None
 
     @staticmethod
     def prepare_query_history(
-        queries,
-        last_checkpoint_date: datetime = None,
-        current_date: datetime = datetime.now(),
+        queries_df,
+        last_checkpoint: date = None,
+        current_date: date = datetime.now().date(),
     ):
-        queries = queries.filter(col("end_time") < current_date)
-
-        if last_checkpoint_date:
-            queries = queries.filter(col("end_time") > last_checkpoint_date)
-
-        # TODO if a query spans 2 days, the cost is currently attributed to the end date only
-        return (
-            queries.withColumn("billing_date", to_date(col("end_time"), "yyyy-MM-dd"))
+        queries_df = (
+            # TODO if a query spans 2 days, the cost is currently attributed to the end date only
+            queries_df.withColumn(
+                "billing_date", to_date(col("end_time"), "yyyy-MM-dd")
+            )
             .withColumn("warehouse_id", col("compute.warehouse_id"))
             .drop("compute")
         )
 
+        print(f"Filtering query history to get results before {current_date}")
+        queries_df = queries_df.filter(col("billing_date") < current_date)
+
+        if last_checkpoint:
+            print(
+                f"Filtering query history using checkpoint to get results after {last_checkpoint}"
+            )
+            queries_df = queries_df.filter(col("billing_date") > last_checkpoint)
+
+        return queries_df
+
     @staticmethod
-    def prepare_list_prices(df, current_date: datetime = datetime.now().date()):
-        df = df.withColumn(
+    def prepare_list_prices(
+        list_prices_df, current_date: datetime = datetime.now().date()
+    ):
+        list_prices_df = list_prices_df.withColumn(
             "price_end_time",
             when(col("price_end_time").isNull(), to_date(lit(current_date))).otherwise(
                 col("price_end_time")
@@ -133,7 +145,7 @@ class CostCalculatorIO:
 
         # Generate daily list prices
         daily_df = (
-            df.withColumn(
+            list_prices_df.withColumn(
                 "dates",
                 sequence(
                     col("price_start_time"),
@@ -158,18 +170,20 @@ class CostCalculatorIO:
         return daily_df
 
     @staticmethod
-    def prepare_billing(df, last_checkpoint_date: datetime = None):
-        df = df.filter(
+    def prepare_billing(billing_df, last_checkpoint: date = None):
+        billing_df = billing_df.filter(
             "usage_metadata.warehouse_id is not null"
         )  # limit results to sql warehouses only
 
-        if last_checkpoint_date:
-            df = df.filter(col("usage_date") > last_checkpoint_date)
+        if last_checkpoint:
+            billing_df = billing_df.filter(col("usage_date") > last_checkpoint)
 
-        df = df.withColumn("warehouse_id", col("usage_metadata.warehouse_id"))
+        billing_df = billing_df.withColumn(
+            "warehouse_id", col("usage_metadata.warehouse_id")
+        )
 
-        df = (
-            df.groupBy(
+        billing_df = (
+            billing_df.groupBy(
                 "account_id",
                 "warehouse_id",
                 "workspace_id",
@@ -183,23 +197,27 @@ class CostCalculatorIO:
             .withColumnRenamed("usage_date", "billing_date")
         )
 
-        return df.withColumn(
+        return billing_df.withColumn(
             "usage_quantity", col("usage_quantity").cast("decimal(20, 4)")
         )
 
     @staticmethod
-    def prepare_cloud_infra_cost(df, last_checkpoint_date: datetime = None):
-        df = df.filter(
+    def prepare_cloud_infra_cost(cloud_infra_cost_df, last_checkpoint: date = None):
+        cloud_infra_cost_df = cloud_infra_cost_df.filter(
             "usage_metadata.warehouse_id is not null"
         )  # limit results to sql warehouses only
 
-        if last_checkpoint_date:
-            df = df.filter(col("usage_date") > last_checkpoint_date)
+        if last_checkpoint:
+            cloud_infra_cost_df = cloud_infra_cost_df.filter(
+                col("usage_date") > last_checkpoint
+            )
 
-        df = df.withColumn("warehouse_id", col("usage_metadata.warehouse_id"))
+        cloud_infra_cost_df = cloud_infra_cost_df.withColumn(
+            "warehouse_id", col("usage_metadata.warehouse_id")
+        )
 
-        df = (
-            df.groupBy(
+        cloud_infra_cost_df = (
+            cloud_infra_cost_df.groupBy(
                 "account_id",
                 "warehouse_id",
                 "workspace_id",
@@ -212,14 +230,14 @@ class CostCalculatorIO:
             .withColumnRenamed("usage_date", "billing_date")
         )
 
-        return df.withColumn("cost", col("cost").cast("decimal(38,2)"))
+        return cloud_infra_cost_df.withColumn("cost", col("cost").cast("decimal(38,2)"))
 
 
 class CostCalculator:
 
     def calculate_cost_agg_day(
         self,
-        metric_to_weight_map,
+        metric_to_weight_map: dict[str, float],
         queries_df,
         list_prices_df,
         billing_df,
@@ -234,16 +252,14 @@ class CostCalculator:
             normalized_queries_df, metric_to_weight_map
         )
         contribution_df = self._calculate_normalized_contribution(weigthed_sum_df)
-        billing_pricing_df = self._enrich_billing_with_prices(
-            billing_df, list_prices_df
-        )
+        billing_pricing_df = self._enrich_with_list_prices(billing_df, list_prices_df)
         dbu_df = self._calculate_dbu_consumption(contribution_df, billing_pricing_df)
         costs_all_df = self._enrich_with_cloud_infra_cost(dbu_df, cloud_infra_cost_df)
 
         return costs_all_df
 
     @staticmethod
-    def _normalize_metrics(queries_df, metrics):
+    def _normalize_metrics(queries_df, metrics: KeysView[str]):
         queries_df = queries_df.withColumnRenamed("executed_by", "user_name")
 
         window_spec = Window.partitionBy(
@@ -270,7 +286,9 @@ class CostCalculator:
         return normalized_df
 
     @staticmethod
-    def _calculate_weighted_sum(normalized_queries_df, metric_to_weight_map):
+    def _calculate_weighted_sum(
+        normalized_queries_df, metric_to_weight_map: dict[str, float]
+    ):
         # Multiply each metric by its weight
         queries_and_weights_df = normalized_queries_df
         for norm_col in metric_to_weight_map.keys():
@@ -295,9 +313,9 @@ class CostCalculator:
         return queries_and_weights_df
 
     @staticmethod
-    def _calculate_normalized_contribution(weigthed_sum_df):
+    def _calculate_normalized_contribution(weighted_sum_df):
         # Calculate the total sum of contributions for each user
-        user_contributions_df = weigthed_sum_df.groupBy(
+        user_contributions_df = weighted_sum_df.groupBy(
             "user_name",
             "billing_date",
             "account_id",
@@ -306,7 +324,7 @@ class CostCalculator:
         ).agg(spark_sum("contribution").alias("contribution"))
 
         # Calculate the total sum of contributions across all users
-        total_contributions_df = weigthed_sum_df.groupBy(
+        total_contributions_df = weighted_sum_df.groupBy(
             "billing_date", "account_id", "warehouse_id", "workspace_id"
         ).agg(spark_sum("contribution").alias("total_contribution"))
 
@@ -331,7 +349,7 @@ class CostCalculator:
         return normalized_df
 
     @staticmethod
-    def _enrich_billing_with_prices(billing_df, list_prices_df):
+    def _enrich_with_list_prices(billing_df, list_prices_df):
         list_prices_df = list_prices_df.where((col("usage_unit") == lit("DBU"))).drop(
             "usage_unit"
         )
