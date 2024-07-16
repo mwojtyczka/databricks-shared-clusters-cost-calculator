@@ -37,15 +37,7 @@ class CostCalculatorIO:
         print(f"Reading checkpoint from `{full_table}`")
 
         df = self.spark.table(full_table)
-        return self.get_max_date_col(df, "last_processed_date")
-
-    def get_max_date_col(self, df, column: str) -> date | None:
-        if df.count() > 0:
-            df = df.withColumn(column + "_new", to_date(col(column)))
-            date_str = df.agg({column + "_new": "max"}).collect()[0][0]
-            return datetime.strptime(str(date_str), "%Y-%m-%d").date()
-
-        return None
+        return self.get_max_date(df, "last_processed_date")
 
     def save_checkpoint(self, table: str, new_checkpoint_date: date):
         full_table = self._construct_full_table(table)
@@ -105,14 +97,27 @@ class CostCalculatorIO:
         return self.prepare_cloud_infra_cost(df, last_checkpoint_date)
 
     @staticmethod
+    def get_max_date(self, df, column: str) -> date | None:
+        if df.count() > 0:
+            df = df.withColumn(column + "_new", to_date(col(column)))
+            date_str = df.agg({column + "_new": "max"}).collect()[0][0]
+            return datetime.strptime(str(date_str), "%Y-%m-%d").date()
+
+        return None
+
+    @staticmethod
     def prepare_query_history(
         queries,
         last_checkpoint_date: datetime = None,
-        current_date: datetime = datetime.now(),
+        current_time: datetime = datetime.now(),
     ):
-        queries = queries.filter(col("end_time") < current_date)
+        # To exclude current date, set the time component to zero (midnight)
+        current_time = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        print(f"Filtering query history to get results before {str(current_time.date())}")
+        queries = queries.filter(col("end_time") < current_time)
 
         if last_checkpoint_date:
+            print(f"Filtering query history to get results after {last_checkpoint_date}")
             queries = queries.filter(col("end_time") > last_checkpoint_date)
 
         # TODO if a query spans 2 days, the cost is currently attributed to the end date only
@@ -234,7 +239,7 @@ class CostCalculator:
             normalized_queries_df, metric_to_weight_map
         )
         contribution_df = self._calculate_normalized_contribution(weigthed_sum_df)
-        billing_pricing_df = self._enrich_billing_with_prices(
+        billing_pricing_df = self._enrich_with_list_prices(
             billing_df, list_prices_df
         )
         dbu_df = self._calculate_dbu_consumption(contribution_df, billing_pricing_df)
@@ -331,7 +336,7 @@ class CostCalculator:
         return normalized_df
 
     @staticmethod
-    def _enrich_billing_with_prices(billing_df, list_prices_df):
+    def _enrich_with_list_prices(billing_df, list_prices_df):
         list_prices_df = list_prices_df.where((col("usage_unit") == lit("DBU"))).drop(
             "usage_unit"
         )

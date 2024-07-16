@@ -267,6 +267,62 @@ def test_prepare_query_history_filter_based_on_checkpoint(
     assert queries_df.count() == 0
 
 
+def test_prepare_query_history_filter_based_on_current_date(
+    spark_session: SparkSession,
+):  # using pytest-spark
+    raw_queries_df = spark_session.createDataFrame(
+        [
+            (
+                "account1",
+                "workspace1",
+                "statement1",
+                "user1@databricks.com",
+                "session1",
+                "FINISHED",
+                {"type": "WAREHOUSE", "cluster_id": None, "warehouse_id": "warehouse1"},
+                "user1",
+                "select 1",
+                "SELECT",
+                None,
+                None,
+                None,
+                datetime.strptime("2024-01-24 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("2024-01-24 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("2024-01-24 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"),
+                100,
+                500,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                None,
+            ),
+        ],
+        system_query_history_schema,
+    )
+
+    # return records greater than 2024-01-24
+    queries_df = CostCalculatorIO.prepare_query_history(
+        raw_queries_df,
+        last_checkpoint_date=None,
+        # should only include query metrics from 2024-1-23
+        current_time=datetime(year=2024, month=1, day=24, hour=23, minute=23, second=23)
+    )
+
+    assert queries_df.count() == 0
+
+
 def test_prepare_list_prices(spark_session: SparkSession):  # using pytest-spark
     raw_list_prices_df = spark_session.createDataFrame(
         [

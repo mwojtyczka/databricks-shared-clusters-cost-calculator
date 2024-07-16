@@ -43,7 +43,7 @@ def run_cost_agg_day(
         print("No data available from daily calculation.")
         return
 
-    new_checkpoint = calculator_io.get_max_date_col(cost_agg_day_df, "billing_date")
+    new_checkpoint = calculator_io.get_max_date(cost_agg_day_df, "billing_date")
     calculator_io.save_checkpoint("checkpoint", new_checkpoint)
 
     print("Finished successfully")
