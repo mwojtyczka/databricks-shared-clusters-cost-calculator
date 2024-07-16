@@ -47,7 +47,9 @@ prep_system_query_history_schema = StructType(
 )
 
 
-def test_prepare_query_history(spark_session: SparkSession):  # using pytest-spark
+def test_should_prepare_query_history(
+    spark_session: SparkSession,
+):  # using pytest-spark
     raw_queries_df = spark_session.createDataFrame(
         [
             (
@@ -213,7 +215,7 @@ def test_prepare_query_history(spark_session: SparkSession):  # using pytest-spa
     )
 
 
-def test_prepare_query_history_filter_based_on_checkpoint(
+def test_should_prepare_query_history_filter_when_checkpoint_is_provided(
     spark_session: SparkSession,
 ):  # using pytest-spark
     raw_queries_df = spark_session.createDataFrame(
@@ -261,13 +263,13 @@ def test_prepare_query_history_filter_based_on_checkpoint(
     # return records greater than 2024-01-24
     queries_df = CostCalculatorIO.prepare_query_history(
         raw_queries_df,
-        datetime.strptime("2024-01-24 23:59:59.999", "%Y-%m-%d %H:%M:%S.%f"),
+        datetime.strptime("2024-01-24", "%Y-%m-%d").date(),
     )
 
     assert queries_df.count() == 0
 
 
-def test_prepare_query_history_filter_based_on_current_date(
+def test_should_prepare_query_history_filter_when_current_date_is_provided(
     spark_session: SparkSession,
 ):  # using pytest-spark
     raw_queries_df = spark_session.createDataFrame(
@@ -315,15 +317,15 @@ def test_prepare_query_history_filter_based_on_current_date(
     # return records greater than 2024-01-24
     queries_df = CostCalculatorIO.prepare_query_history(
         raw_queries_df,
-        last_checkpoint_date=None,
+        last_checkpoint=None,
         # should only include query metrics from 2024-1-23
-        current_time=datetime(year=2024, month=1, day=24, hour=23, minute=23, second=23)
+        current_date=datetime(year=2024, month=1, day=24).date(),
     )
 
     assert queries_df.count() == 0
 
 
-def test_prepare_list_prices(spark_session: SparkSession):  # using pytest-spark
+def test_should_prepare_list_prices(spark_session: SparkSession):  # using pytest-spark
     raw_list_prices_df = spark_session.createDataFrame(
         [
             (
@@ -416,7 +418,9 @@ def test_prepare_list_prices(spark_session: SparkSession):  # using pytest-spark
     )
 
 
-def test_prepare_billing_usage(spark_session: SparkSession):  # using pytest-spark
+def test_should_prepare_billing_usage(
+    spark_session: SparkSession,
+):  # using pytest-spark
     raw_billing_df = spark_session.createDataFrame(
         [
             # should aggregate
@@ -517,7 +521,41 @@ def test_prepare_billing_usage(spark_session: SparkSession):  # using pytest-spa
     )
 
 
-def test_prepare_cloud_infra_cost(spark_session: SparkSession):  # using pytest-spark
+def test_should_prepare_billing_usage_filter_when_checkpoint_is_provided(
+    spark_session: SparkSession,
+):  # using pytest-spark
+    raw_billing_df = spark_session.createDataFrame(
+        [
+            (
+                "1",
+                "account1",
+                "workspace1",
+                "PREMIUM_SQL_PRO_COMPUTE",
+                "AZURE",
+                datetime.strptime("2024-01-24 01:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("2024-01-24 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("2024-01-24", "%Y-%m-%d"),
+                None,
+                "DBU",
+                Decimal(100.0),
+                {"warehouse_id": "warehouse1"},
+            )
+        ],
+        system_billing_usage_schema,
+    )
+
+    # return records greater than 2024-01-24
+    billing_df = CostCalculatorIO.prepare_billing(
+        raw_billing_df,
+        last_checkpoint=datetime.strptime("2024-01-24", "%Y-%m-%d").date(),
+    )
+
+    assert billing_df.count() == 0
+
+
+def test_should_prepare_cloud_infra_cost(
+    spark_session: SparkSession,
+):  # using pytest-spark
     raw_cloud_infra_cost_df = spark_session.createDataFrame(
         [
             # should aggregate
@@ -625,33 +663,35 @@ def test_prepare_cloud_infra_cost(spark_session: SparkSession):  # using pytest-
     )
 
 
-def test_prepare_billing_usage_filter_based_on_checkpoint(
+def test_should_prepare_cloud_infra_cost_when_checkpoint_is_provided(
     spark_session: SparkSession,
 ):  # using pytest-spark
-    raw_billing_df = spark_session.createDataFrame(
+    raw_cloud_infra_cost_df = spark_session.createDataFrame(
         [
             (
-                "1",
                 "account1",
-                "workspace1",
-                "PREMIUM_SQL_PRO_COMPUTE",
                 "AZURE",
+                "1",
+                "2",
+                "workspace1",
                 datetime.strptime("2024-01-24 01:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
-                datetime.strptime("2024-01-24 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
+                datetime.strptime("2024-01-24 02:06:06.944", "%Y-%m-%d %H:%M:%S.%f"),
                 datetime.strptime("2024-01-24", "%Y-%m-%d"),
-                None,
-                "DBU",
-                Decimal(100.0),
-                {"warehouse_id": "warehouse1"},
-            )
+                Decimal(50.0),
+                "EUR",
+                {
+                    "cluster_id": None,
+                    "warehouse_id": "warehouse1",
+                    "instance_pool_id": None,
+                },
+            ),
         ],
-        system_billing_usage_schema,
+        system_cloud_infra_costs_schema,
     )
 
-    # return records greater than 2024-01-24
-    billing_df = CostCalculatorIO.prepare_billing(
-        raw_billing_df,
-        datetime.strptime("2024-01-24 23:59:59.999", "%Y-%m-%d %H:%M:%S.%f"),
+    cloud_infra_cost_df = CostCalculatorIO.prepare_cloud_infra_cost(
+        raw_cloud_infra_cost_df,
+        last_checkpoint=datetime.strptime("2024-01-24", "%Y-%m-%d").date(),
     )
 
-    assert billing_df.count() == 0
+    assert cloud_infra_cost_df.count() == 0

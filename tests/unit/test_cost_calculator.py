@@ -6,7 +6,9 @@ from datetime import datetime
 from schema_definitions import *
 
 
-def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spark
+def test_should_calculate_daily_costs(
+    spark_session: SparkSession,
+):  # using pytest-spark
     weights = {"total_duration_ms": 0.5, "total_task_duration_ms": 0.5}
 
     queries_df = CostCalculatorIO.prepare_query_history(
@@ -1107,7 +1109,7 @@ def test_calculate_daily_costs(spark_session: SparkSession):  # using pytest-spa
     )
 
 
-def test_calculate_daily_costs_missing_cloud_infra_cost(
+def test_should_calculate_daily_costs_when_missing_cloud_infra_cost(
     spark_session: SparkSession,
 ):  # using pytest-spark
     weights = {"total_duration_ms": 1.0}

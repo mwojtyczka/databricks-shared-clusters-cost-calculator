@@ -21,7 +21,7 @@ resources:
             base_parameters:
               output_catalog: "main"
               output_schema: "billing_usage_granular"
-              recreate_schema: "false"
+              recreate_tables: "true"
 
       job_clusters:
         - job_cluster_key: job_cluster
