@@ -113,7 +113,8 @@ class CostCalculatorIO:
         current_date: date = datetime.now().date(),
     ):
         queries_df = (
-            # TODO if a query spans 2 days, the cost is currently attributed to the end date only
+            # if a query spans 2 days, the cost is attributed to the end date only
+            # splitting is not implemented as it would be very computational intense
             queries_df.withColumn(
                 "billing_date", to_date(col("end_time"), "yyyy-MM-dd")
             )

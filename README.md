@@ -225,8 +225,8 @@ See contribution guidance [here](CONTRIBUTING.md).
 
 * A user can only belong to one entity (e.g. cost center, department). 
 If the user belongs to multiple entities, it’s unknown in the context of which entity the user executed the query.
+* If a query spans multiple days, the cost is attributed to the end date only.
 
 # Future work
-
-* Logic improvements: If a query spans 2 days, the cost is currently attributed to the end date only although DBUs are consumed from both of the days.
+ 
 * More IdPs: Extend the User Info workflow to support more IdP providers (e.g. Okta, One Login), not only Microsoft Entra ID.
