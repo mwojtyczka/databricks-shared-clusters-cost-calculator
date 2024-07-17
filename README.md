@@ -229,6 +229,7 @@ See contribution guidance [here](CONTRIBUTING.md).
 
 # Limitations
 
+* Works for SQL Warehouses only
 * A user can only belong to one entity (e.g. cost center, department). 
 If the user belongs to multiple entities, it’s unknown in the context of which entity the user executed the query.
 * If a query spans multiple days, the cost is attributed to the end date only.
@@ -236,3 +237,4 @@ If the user belongs to multiple entities, it’s unknown in the context of which
 # Future work
  
 * More IdPs: Extend the User Info workflow to support more IdP providers (e.g. Okta, One Login), not only Microsoft Entra ID.
+* Support for regular Databricks clusters (job and all-purpose).
