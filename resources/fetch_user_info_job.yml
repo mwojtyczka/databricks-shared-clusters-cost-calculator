@@ -9,8 +9,8 @@ resources:
 
       schedule:
         # Run every day at 01:00 AM
-        quartz_cron_expression: '37 0 1 * * ?'
-        timezone_id: Europe/Amsterdam
+        quartz_cron_expression: '11 0 2 * * ?'
+        timezone_id: UTC
 
 #      email_notifications:
 #        on_failure:
