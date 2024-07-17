@@ -152,14 +152,17 @@ Idle time is split according to the contribution of each user in the cluster usa
 The metrics and assigned weights can be found [here](src/clusters_cost_allocation/metrics.py).
 
 The cost allocation is available on a daily granularity.
-Current date is excluded from the calculations to avoid partial calculationl.
+Current date is excluded from the calculations to avoid partial results.
 Only query history of complete days is used.
 
 The last processed day is persisted in a **checkpoint** table. The query history is processed up to
-the date persisted in the checkpoint. When the job starts again it will only read greater than the checkpoint.
+the date persisted in the checkpoint. When the job starts again it will continue where it left.
 This is to ensure that the calculation is done incrementally (only for queries not processed yet).
 
 ![problem](docs/checkpoint_table.png?)
+
+If you want to re-process the data, reset the checkpoint to a previous date. 
+But note that most system tables have small retention time (usually up to a month) so you need to be careful. 
 
 # Local Development
 
