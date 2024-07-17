@@ -119,9 +119,9 @@ The solution uses numerous system tables to perform the calculation and write th
 
 For the **cost calculation** the following system tables are required:
 * Billing usage system table ([system.billing.usage](https://docs.databricks.com/en/admin/system-tables/billing.html)) containing DBU consumption of SQL Warehouses per day from all UC-enabled workspaces.
-* Query History system table (`system.query.history`) containing query history of SQL Warehouses from all UC-enabled workspaces. Currently in Private Preview.
+* Query History system table (`system.query.history`) containing query history of SQL Warehouses from all UC-enabled workspaces.
 * List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing.
-* Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage). Currently in Private Preview for AWS.
+* Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage).
 
 For the **dashboard** to be able to map users to departments / cost centers the following table is required:
 * User Info table (`user_info`) contains mapping of users to cost centers and departments. 
@@ -152,9 +152,12 @@ Idle time is split according to the contribution of each user in the cluster usa
 The metrics and assigned weights can be found [here](src/clusters_cost_allocation/metrics.py).
 
 The cost allocation is available on a daily granularity.
-The calculation is done incrementally (only queries not processed yet). 
-The last processed day is persisted in a **checkpoint** table.
-Current date is excluded from the calculations. Only query history of complete days is used.
+Current date is excluded from the calculations to avoid partial calculationl.
+Only query history of complete days is used.
+
+The last processed day is persisted in a **checkpoint** table. The query history is processed up to
+the date persisted in the checkpoint. When the job starts again it will only read greater than the checkpoint.
+This is to ensure that the calculation is done incrementally (only for queries not processed yet).
 
 ![problem](docs/checkpoint_table.png?)
 

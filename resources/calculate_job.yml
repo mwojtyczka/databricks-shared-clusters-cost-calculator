@@ -8,9 +8,12 @@ resources:
       #  service_principal_name: xxx
 
       schedule:
-        # Run every day at 2:00 AM
-        quartz_cron_expression: '37 0 2 * * ?'
-        timezone_id: Europe/Amsterdam
+        # Run every day at 2:00 AM UTC
+        # Query history is not available immediately.
+        # We allow 2 hours after the day is closed
+        # to make sure all query metrics from the previous day are available in the system.query.history.
+        quartz_cron_expression: '11 0 2 * * ?'
+        timezone_id: UTC
 
 #      email_notifications:
 #        on_failure:
