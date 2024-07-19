@@ -19,74 +19,81 @@ While minimizing external dependencies is essential, exceptions can be made case
 justified, such as when a well-established and actively maintained library provides significant benefits, like time savings, performance improvements, 
 or specialized functionality unavailable in standard libraries.
 
-## Common fixes for `mypy` errors
-
-See https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html for more details
-
-### ..., expression has type "None", variable has type "str"
-
-* Add `assert ... is not None` if it's a body of a method. Example:
-
-```
-# error: Argument 1 to "delete" of "DashboardWidgetsAPI" has incompatible type "str | None"; expected "str"
-self._ws.dashboard_widgets.delete(widget.id)
-```
-
-after
-
-```
-assert widget.id is not None
-self._ws.dashboard_widgets.delete(widget.id)
-```
-
-* Add `... | None` if it's in the dataclass. Example: `cloud: str = None` -> `cloud: str | None = None`
-
-### ..., has incompatible type "Path"; expected "str"
-
-Add `.as_posix()` to convert Path to str
-
-###  Argument 2 to "get" of "dict" has incompatible type "None"; expected ...
-
-Add a valid default value for the dictionary return. 
-
-Example: 
-```python
-def viz_type(self) -> str:
-    return self.viz.get("type", None)
-```
-
-after:
-
-Example: 
-```python
-def viz_type(self) -> str:
-    return self.viz.get("type", "UNKNOWN")
-```
-
-## Local Setup
+# Local Setup
 
 This section provides a step-by-step guide to set up and start working on the project. These steps will help you set up your project environment and dependencies for efficient development.
 
-To begin, run `make dev` create the default environment and install development dependencies, assuming you've already cloned the github repo.
+### Install Poetry
 
+To begin, install Poetry:
+https://python-poetry.org/docs/
+
+### Create virtual environment and install dependencies
+
+Assuming you've already cloned the github repo, run:
 ```shell
 make dev
 ```
 
-Verify installation with 
+### Verify installation
+
+Verify installation by running the tests:
 ```shell
 make test
 ```
+
+### Set up your IDE
+
+Get path to poetry virtual env so that you can setup Python interpreter in your IDE:
+```shell
+echo $(poetry env info --path)/bin
+```
+
+Optionally, activate the virtual environment:
+```shell
+source $(poetry env info --path)/bin/activate
+```
+
+### Before every commit
 
 Before every commit, apply the consistent formatting of the code, as we want our codebase look consistent:
 ```shell
 make fmt
 ```
 
-Before every commit, run automated bug detector (`make lint`) and unit tests (`make test`) to ensure that automated
+Run automated bug detector (`make lint`) and unit tests (`make test`) to ensure that automated
 pull request checks do pass, before your code is reviewed by others: 
 ```shell
+make lint
 make test
+```
+
+### Running different type of tests
+
+* Unit testing:
+
+```shell
+source $(poetry env info --path)/bin/activate
+pytest tests/unit --cov
+```
+
+* Integration testing:
+```shell
+source $(poetry env info --path)/bin/activate
+pytest tests/integration --cov
+```
+
+* End to End testing:
+```shell
+source $(poetry env info --path)/bin/activate
+pytest tests/e2e --cov
+```
+
+### Running all steps
+
+If you want to execute all the steps (install dependencies, format, lint, test etc.), run:
+```shell
+make all
 ```
 
 ## First contribution
@@ -107,11 +114,18 @@ Here are the example steps to submit your first contribution:
 12. `git commit -a`. Make sure to enter meaningful commit message title.
 13. `git push origin FEATURENAME`
 14. Go to GitHub UI and create PR. Alternatively, `gh pr create` (if you have [GitHub CLI](https://cli.github.com/) installed). 
-    Use a meaningful pull request title because it'll appear in the release notes. Use `Resolves #NUMBER` in pull
+    Use a meaningful pull request title because it will appear in the release notes. Use `Resolves #NUMBER` in pull
     request description to [automatically link it](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/using-keywords-in-issues-and-pull-requests#linking-a-pull-request-to-an-issue)
     to an existing issue. 
-15. announce PR for the review
+15. Announce PR for the review
 
 ## Troubleshooting
 
 If you encounter any package dependency errors after `git pull`, run `make clean`
+
+If you encounter any poetry virtual environment issues, reinstall the environment:
+```
+poetry env list
+poetry env remove project-name-py3.10
+poetry install
+```

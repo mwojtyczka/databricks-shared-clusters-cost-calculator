@@ -30,6 +30,7 @@ resources:
               output_catalog: "main"
               output_schema: "billing_usage_granular"
 
+# if you prefer to use wheel directly instead of notebook for execution
 #          python_wheel_task:
 #            package_name: granular_cluster_cost
 #            entry_point: main
