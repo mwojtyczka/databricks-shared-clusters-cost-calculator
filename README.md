@@ -233,6 +233,11 @@ See contribution guidance [here](CONTRIBUTING.md).
 * A user can only belong to one entity (e.g. cost center, department). 
 If the user belongs to multiple entities, it’s unknown in the context of which entity the user executed the query.
 * If a query spans multiple days, the cost is attributed to the end date only.
+* The solution is compatible with Databricks on AWS, Azure, and GCP. 
+However, currently, cloud cost reporting is only available for AWS. 
+The reported cloud costs include EC2-related expenses. 
+Future updates will include Storage and Network costs, as well as support for other cloud providers.
+
 
 # Future work
  
