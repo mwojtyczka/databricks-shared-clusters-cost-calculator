@@ -164,65 +164,6 @@ This is to ensure that the calculation is done incrementally (only for queries n
 If you want to re-process the data, reset the checkpoint to a previous date. 
 But note that most system tables have small retention time (usually up to a month) so you need to be careful. 
 
-# Local Development
-
-Follow the below steps to run the project on your local machine.
-
-### Set up Poetry
-
-https://python-poetry.org/docs/
-
-### Build the project
-
-Run all the steps (install dependencies, format, lint, test etc.):
-```bash
-make all
-```
-
-### Set up your IDE
-
-Get path to poetry virtual env so that you can setup interpreter in your IDE
-
-```bash
-echo $(poetry env info --path)/bin
-```
-
-Activate poetry virtual environment:
-
-```bash
-source $(poetry env info --path)/bin/activate
-```
-
-### Run individual tests
-
-* Unit testing:
-
-```
-source $(poetry env info --path)/bin/activate
-pytest tests/unit --cov
-```
-
-* Integration testing:
-```
-source $(poetry env info --path)/bin/activate
-pytest tests/integration --cov
-```
-
-* End to End testing:
-```
-source $(poetry env info --path)/bin/activate
-pytest tests/e2e --cov
-```
-
-### Troubleshooting
-
-Restart poetry virtual env (in case of issues with poetry):
-```
-poetry env list
-poetry env remove project-name-py3.10
-poetry install
-```
-
 # Contribution
 
 See contribution guidance [here](CONTRIBUTING.md).
