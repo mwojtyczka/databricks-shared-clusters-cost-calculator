@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS user_info(
 
 CREATE TABLE IF NOT EXISTS cost_agg_day(
   user_name string NOT NULL,
+  user_id string NOT NULL,
   cloud string NOT NULL,
   billing_date date NOT NULL,
   account_id string NOT NULL,
