@@ -261,13 +261,16 @@ class CostCalculator:
 
     @staticmethod
     def _normalize_metrics(queries_df, metrics: KeysView[str]):
-        queries_df = queries_df.withColumnRenamed("executed_by", "user_name")
+        queries_df = queries_df.withColumnRenamed(
+            "executed_by", "user_name"
+        ).withColumnRenamed("executed_by_user_id", "user_id")
 
         window_spec = Window.partitionBy(
             "account_id",
             "workspace_id",
             "warehouse_id",
             "user_name",
+            "user_id",
             "billing_date",
         )
 
@@ -318,6 +321,7 @@ class CostCalculator:
         # Calculate the total sum of contributions for each user
         user_contributions_df = weighted_sum_df.groupBy(
             "user_name",
+            "user_id",
             "billing_date",
             "account_id",
             "warehouse_id",
@@ -396,6 +400,7 @@ class CostCalculator:
             "billing_date",
             "warehouse_id",
             "user_name",
+            "user_id",
             "dbu_contribution_percent",
             "cloud",
             "currency_code",

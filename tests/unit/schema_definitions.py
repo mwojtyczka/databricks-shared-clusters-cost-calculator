@@ -146,6 +146,7 @@ cost_agg_day_schema = StructType(
         StructField("billing_date", DateType(), False),
         StructField("warehouse_id", StringType(), False),
         StructField("user_name", StringType(), False),
+        StructField("user_id", StringType(), False),
         StructField("dbu_contribution_percent", DecimalType(17, 14), False),
         StructField("dbu", DecimalType(38, 2), False),
         StructField("dbu_cost", DecimalType(38, 2), False),
