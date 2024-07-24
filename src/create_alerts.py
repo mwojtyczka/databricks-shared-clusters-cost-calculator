@@ -1,13 +1,8 @@
 # Databricks notebook source
 # pylint: skip-file
+# COMMAND ----------
 # MAGIC %md
 # MAGIC ## Install databricks-sdk
-from clusters_cost_allocation.dbsql_handler import DBSQLHandler
-from clusters_cost_allocation.dbsql_queries import (
-    get_dbu_cost_alert_query_body,
-    get_cloud_cost_alert_query_body,
-)
-
 # COMMAND ----------
 
 # MAGIC %pip install databricks-sdk --upgrade
@@ -35,11 +30,16 @@ print(f"Use {catalog_and_schema}")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Def functions
+# MAGIC ## Define functions
 
 # COMMAND ----------
 
 from databricks.sdk import WorkspaceClient
+from clusters_cost_allocation.dbsql_handler import DBSQLHandler
+from clusters_cost_allocation.dbsql_queries import (
+    get_dbu_cost_alert_query_body,
+    get_cloud_cost_alert_query_body,
+)
 
 w = WorkspaceClient()
 handler = DBSQLHandler(w, data_source_id=w.data_sources.list()[0].id)

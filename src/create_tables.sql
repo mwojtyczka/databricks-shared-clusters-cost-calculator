@@ -17,6 +17,8 @@ USE CATALOG ${output_catalog};
 -- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.cost_agg_day")
 -- MAGIC     print(f"Dropping table: checkpoint")
 -- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.checkpoint")
+-- MAGIC     print(f"Dropping table: budget")
+-- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.budget")
 -- MAGIC
 -- MAGIC print(f"Creating schema if not exists: {schema}")
 

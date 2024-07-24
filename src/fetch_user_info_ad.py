@@ -1,5 +1,6 @@
 # Databricks notebook source
 # pylint: skip-file
+# COMMAND ----------
 # MAGIC %md
 # MAGIC # Use this notebook to fetch user info from Microsoft Entra ID
 
