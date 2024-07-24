@@ -45,8 +45,9 @@ Once the project is deployed, the following Jobs are created in your Databricks 
 * `granular billing usage: 1. create tables`
 * `granular billing usage: 2. calculate`
 * `granular billing usage: 3. fetch user info` (requires additional configuration)
+* `granular billing usage: 4. create alerts` (requires pre-populating the budget table, see [here](lake_view/demo_setup.py))
 
-Deploy and execute them in the given order. 
+Deploy and execute them in the given order.
 To visualize the cost calculation results, Databricks Dashboard can be used (sample available as part of the project).
 
 ### Steps:
@@ -100,13 +101,18 @@ and databricks user name to use for the execution.
    ```
    $ databricks bundle run fetch_user_info_job --target dev
    ```
+   d) Create Databricks SQL Alerts:
+   ```
+   $ databricks bundle run create_alerts_job --target dev
+   ```
    
 10. If you want to visualize the results:
 
     * Import [this dashboard](lake_view/dashboard.json).
-    * Import [this notebook](lake_view/user_info_demo.py) to pre-populate the `user_info` table with some randomized data.
+    * Import [this notebook](lake_view/demo_setup.py) to pre-populate the `user_info` and `budget` tables with some randomized data.
       You can use this to quickly get started before fetching the user info from your IdP provider.
       Before you run the notebook, provide the catalog and schema name of the user info table via widgets.
+      The `budget` table is used for alerting as well.
 
 # Design
 
@@ -123,12 +129,13 @@ For the **cost calculation** the following system tables are required:
 * List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing.
 * Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage).
 
-For the **dashboard** to be able to map users to departments / cost centers the following table is required:
+For the **dashboard** and **alerts** the following tables are required:
 * User Info table (`user_info`) contains mapping of users to cost centers and departments. 
 This table can be pre-populated based on extension attributes from the IdP providers. 
 See example notebook for Microsoft Entra ID [here](src/fetch_user_info_ad.py).
-
 ![problem](docs/user_info_table.png?)
+* Budget table (`budget`) contains spending limits for a given organizational entity (e.g. department).
+![problem](docs/budget_table.png?)
 
 ### Output
 
@@ -140,8 +147,8 @@ Only users that have consumed any DBUs in the given day are included.
 
 [Rows filters](https://docs.databricks.com/en/tables/row-and-column-filters.html) can be applied to the table to ensure
 only specific rows can be viewed by specific departments/users. 
-The table can be joined to the User Info table (user_info) to retrieve additional contextual information 
-about the users (e.g. cost center, department).
+The table can be joined to the User Info table (`user_info`) to retrieve additional contextual information 
+about the users (e.g. cost center, department), and to the Budget table (`budget`) to get info about spending limits.
 
 ### Cost Calculation
 
@@ -179,8 +186,8 @@ However, currently, cloud cost reporting is only available for AWS.
 The reported cloud costs include EC2-related expenses. 
 Future updates will include Storage and Network costs, as well as support for other cloud providers.
 
-
 # Future work
- 
+
+* Automate LakeView dashboard deployment
 * More IdPs: Extend the User Info workflow to support more IdP providers (e.g. Okta, One Login), not only Microsoft Entra ID.
 * Support for regular Databricks clusters (job and all-purpose).
