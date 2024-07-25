@@ -17,6 +17,8 @@ USE CATALOG ${output_catalog};
 -- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.cost_agg_day")
 -- MAGIC     print(f"Dropping table: checkpoint")
 -- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.checkpoint")
+-- MAGIC     print(f"Dropping table: budget")
+-- MAGIC     spark.sql(f"DROP TABLE IF EXISTS {schema}.budget")
 -- MAGIC
 -- MAGIC print(f"Creating schema if not exists: {schema}")
 
@@ -40,7 +42,7 @@ CREATE TABLE IF NOT EXISTS user_info(
   user_id string NOT NULL,
   display_name string NOT NULL,
   department string NOT NULL,
-  cost_center string,
+  cost_center string NOT NULL,
   CONSTRAINT pk PRIMARY KEY(user_name)
 );
 
@@ -61,6 +63,19 @@ CREATE TABLE IF NOT EXISTS cost_agg_day(
   dbu_contribution_percent decimal(17, 14),
   CONSTRAINT cost_agg_day_pk PRIMARY KEY(user_name, cloud, billing_date, account_id, warehouse_id, workspace_id),
   CONSTRAINT cost_agg_day_users_fk FOREIGN KEY (user_name) REFERENCES user_info
+);
+
+-- COMMAND ----------
+
+CREATE TABLE IF NOT EXISTS budget(
+  organizational_entity_name string NOT NULL, -- eg. "department", "cost center", "user"
+  organizational_entity_value string NOT NULL,
+  dbu_cost_limit decimal(38, 2) NOT NULL,
+  cloud_cost_limit decimal(38, 2) NOT NULL,
+  currency_code string NOT NULL,
+  effective_start_date date NOT NULL,
+  effective_end_date date,
+  CONSTRAINT budget_pk PRIMARY KEY(organizational_entity_name, organizational_entity_value, effective_start_date)
 );
 
 -- COMMAND ----------
