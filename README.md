@@ -130,12 +130,15 @@ For the **cost calculation** the following system tables are required:
 * List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing.
 * Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage). Currently in Private Preview.
 
-For the **dashboard** and **alerts** the following tables are required:
+For the **dashboard** and **alerts** the following tables are required (deployed as part of the `create_tables_job` job):
 * User Info table (`user_info`) contains mapping of users to cost centers and departments. 
-This table can be pre-populated based on extension attributes from the IdP providers. 
-See example notebook for Microsoft Entra ID [here](src/fetch_user_info_ad.py).
+This table is populated by `fetch_user_info_job` job using extension attributes from your IdP provider.
+
 ![problem](docs/user_info_table.png?)
-* Budget table (`budget`) contains spending limits for a given organizational entity (e.g. department).
+
+* Budget table (`budget`) contains spending limits for your organizational entity (e.g. department).
+This table is populated by `define_budget_job` job.
+
 ![problem](docs/budget_table.png?)
 
 ### Output
