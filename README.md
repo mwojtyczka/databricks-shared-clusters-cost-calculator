@@ -134,12 +134,27 @@ For the **dashboard** and **alerts** the following tables are required (deployed
 * User Info table (`user_info`) contains mapping of users to cost centers and departments. 
 This table is populated by `fetch_user_info_job` job using extension attributes from your IdP provider.
 
-![problem](docs/user_info_table.png?)
+| Column                       | Type   | Description                            | Example data                        | Constraints |
+|------------------------------|--------|----------------------------------------|-------------------------------------|-------------|
+| user_name                    | string | User name in the form of email address | marcin.wojtczka@databricks.com      | PK          |
+| user_id                      | string | Databricks user id                     | 2770987888128771                    |             |
+| display_name                 | string | User display name                      | Marcin Wojtyczka                    |             |
+| organizational_entity_name   | string | Organizational entity name             | department, cost center, team       | PK          |
+| organizational_entity_value  | string | Organizational entity value            | R&D                                 |             |
+
 
 * Budget table (`budget`) contains spending limits for your organizational entity (e.g. department).
 This table is populated by `define_budget_job` job.
 
-![problem](docs/budget_table.png?)
+| Column                      | Type       | Description                          | Example data                  | Constraints        |
+|-----------------------------|------------|--------------------------------------|-------------------------------|--------------------|
+| organizational_entity_name  | string     | Organizational entity name           | department, cost center, team | PK, FK (user_info) |
+| organizational_entity_value | string     | Organizational entity value          | R&D                           | PK, FK (user_info) |
+| dbu_cost_limit              | decimal(2) | DBU cost limit                       | 100000.00                     |                    |
+| cloud_cost_limit            | decimal(2) | Cloud cost limit                     | 120000                        |                    |
+| currency_code               | string     | Code of the currency                 | EUR                           |                    |
+| effective_start_date        | date       | The date the limit is effective from | 2024-04-01                    | PK                 |
+| effective_end_date          | date       | The date the limit is effective to   | Null                          | Nullable           |
 
 ### Output
 
@@ -147,7 +162,20 @@ The result is saved as Delta table and gives DBU consumption for each user and c
 The data is aggregated daily and stored in the Cost Agg Day table (`cost_agg_day`).
 Only users that have consumed any DBUs in the given day are included.
 
-![problem](docs/cost_agg_day_table.png?)
+| Column                   | Type         | Description                                                                                               | Example data                         | Constraints           |
+|--------------------------|--------------|-----------------------------------------------------------------------------------------------------------|--------------------------------------|-----------------------|
+| user_name                | string       | User name in the form of email address                                                                    | marcin.wojtczka@databricks.com       | PK, FK (user_info)    |
+| user_id                  | string       | Databricks user id                                                                                        | 2770987888128771                     |                       |
+| cloud                    | string       | Cloud provider                                                                                            | AZURE                                | PK                    |
+| billing_date             | date         | Billing period in UTC: yyyy–mm-dd                                                                         | 2024-03-05                           | PK                    |
+| account_id               | string       | Id of the Databricks account where the cluster is located                                                 | bab96770-8d6f-4ead-9596-c4eec6de581b | PK                    |
+| warehouse_id             | string       | Id of the sql warehouse                                                                                   | f64784f09898be10                     | PK                    |
+| workspace_id             | string       | Id of the workspace where the cluster is located                                                          | 237536643179474                      | PK                    |
+| dbu                      | decimal(2)   | Databricks DBU consumption                                                                                | 85736.21                             | Nullable              |
+| dbu_cost                 | decimal(2)   | Databricks DBU cost                                                                                       | 18861.92                             | Nullable              |
+| cloud_cost               | decimal(2)   | Cloud cost (e.g. VM, storage)                                                                             | 15412.24                             | Nullable              |
+| currency_code            | string       | Code of the currency                                                                                      | EUR                                  |                       |
+| dbu_contribution_percent | decimal(14)  | % contribution to the overall DBU consumption (all contributions per day for a user should sum up to 100) | 0.003                                | Nullable              |
 
 [Rows filters](https://docs.databricks.com/en/tables/row-and-column-filters.html) can be applied to the table to ensure
 only specific rows can be viewed by specific departments/users. 
@@ -170,7 +198,9 @@ The last processed day is persisted in a **checkpoint** table. The query history
 the date persisted in the checkpoint. When the job starts again it will continue where it left.
 This is to ensure that the calculation is done incrementally (only for queries not processed yet).
 
-![problem](docs/checkpoint_table.png?)
+| Column              | Type | Description                | Example data | Constraints |
+|---------------------|------|----------------------------|--------------|-------------|
+| last_processed_date | date | Last processed billing day | 2024-07-12   |             |
 
 If you want to re-process the data, reset the checkpoint to a previous date. 
 But note that most system tables have small retention time (usually up to a month) so you need to be careful. 
