@@ -21,7 +21,7 @@ resources:
           job_cluster_key: job_cluster
           #existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
-            notebook_path: ../src/fetch_user_info_ad.py
+            notebook_path: ../src/fetch_user_info_from_entra_id.py
             source: WORKSPACE
             base_parameters:
               output_catalog: "main"

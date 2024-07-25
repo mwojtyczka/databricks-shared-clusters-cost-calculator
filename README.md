@@ -99,14 +99,14 @@ and user name to use for the deployment.
    
     d) Define budget limits:
 
-    Provide budget info in the `src/define_budget.sql` file. Then run:
+    Provide budget spending limits in the `src/define_budget.sql` file. Then run:
     ```
     $ databricks bundle run define_budget_job --target dev
     ```
    
     e) Fetch user info from your Identity Provider (IdP):
 
-    Provide auth credentials for your Entra ID Identity Provider in `src/fetch_user_info_ad.py`. Then run:
+    Provide auth credentials in `src/fetch_user_info_from_entra_id.py`. Then run:
     ```
     $ databricks bundle run fetch_user_info_job --target dev
     ```
@@ -192,5 +192,6 @@ Future updates will include Storage and Network costs, as well as support for ot
 
 # Future work
 
-* More IdPs: Extend the User Info workflow to support more IdP providers (e.g. Okta, One Login), not only Microsoft Entra ID.
-* Add support for regular Databricks clusters (job and all-purpose).
+* More IdPs: Extend the User Info workflow to provide examples for more IdP providers (e.g. Okta, One Login).
+Currently only example for Microsoft Entra ID is available.
+* Add support for regular Databricks clusters (all-purpose and job compute).

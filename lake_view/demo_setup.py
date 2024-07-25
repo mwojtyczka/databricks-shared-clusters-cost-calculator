@@ -29,10 +29,10 @@ import random
 from pyspark.sql.types import StructType, StructField, StringType
 
 # Predefined department and cost center pairs
-department_cost_center_pairs = [
-    ("R&D", "701"),
-    ("FE", "702"),
-    ("PS", "703")
+departments = [
+    ("R&D"),
+    ("FE"),
+    ("PS")
 ]
 
 users = spark.table(f"{catalog_and_schema}.cost_agg_day").select("user_name")
@@ -42,8 +42,8 @@ user_info_schema = StructType(
         StructField("user_name", StringType(), False),
         StructField("user_id", StringType(), False),
         StructField("display_name", StringType(), False),
-        StructField("department", StringType(), False),
-        StructField("cost_center", StringType(), True),
+        StructField("organizational_entity_name", StringType(), False),
+        StructField("organizational_entity_value", StringType(), True),
     ]
 )
 
@@ -55,8 +55,8 @@ def create_user_info(data_df):
         user_id = i
         i = i+1
         display_name = user_name
-        department, cost_center = random.choice(department_cost_center_pairs)
-        user_info_list.append((user_name, user_id, display_name, department, cost_center))
+        department = random.choice(departments)
+        user_info_list.append((user_name, user_id, display_name, "department", department))
 
     return spark.createDataFrame(user_info_list, schema=user_info_schema)
 
