@@ -1,7 +1,7 @@
 resources:
   jobs:
     calculate_job:
-      name: "granular billing usage: 2. calculate"
+      name: "Granular billing usage: 2. calculate"
 
       # overwrite the default run_as from the bundle
       #run_as:

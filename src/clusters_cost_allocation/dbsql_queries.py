@@ -1,4 +1,5 @@
 def _get_base_alert_query_body(catalog_and_schema: str):
+    # limit alerting to the current month using previous day data
     return f"""
         WITH monthly_costs AS (
             SELECT
@@ -49,7 +50,7 @@ def _get_base_alert_query_body(catalog_and_schema: str):
               ON mc.department = bi.department
                 AND mc.currency_code = bi.currency_code
                 AND mc.month BETWEEN bi.effective_start_date AND bi.effective_end_date
-            WHERE CAST(DATE_TRUNC('month', CURRENT_DATE) AS DATE) = mc.month
+            WHERE CAST(DATE_TRUNC('month', DATE_SUB(DATE_TRUNC('day', CURRENT_DATE), 1)) AS DATE) = mc.month
             ORDER BY
               mc.department,
               mc.month

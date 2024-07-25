@@ -1,15 +1,18 @@
 resources:
   jobs:
-    fetch_user_info_job:
-      name: "Granular billing usage: 5. fetch user info"
+    define_budget_job:
+      name: "Granular billing usage: 4. define budget"
 
       # overwrite the default run_as from the bundle
       #run_as:
       #  service_principal_name: xxx
 
       schedule:
-        # Run every day at 01:00 AM
-        quartz_cron_expression: '11 0 2 * * ?'
+        # Run every day at 1:00 AM UTC
+        # Query history is not available immediately.
+        # Therefore, we allow 1 hour after the day is closed
+        # to make sure query history from the previous day is available.
+        quartz_cron_expression: '11 0 1 * * ?'
         timezone_id: UTC
 
 #      email_notifications:
@@ -17,11 +20,11 @@ resources:
 #          - user@company.com
 
       tasks:
-        - task_key: user_info
-          job_cluster_key: job_cluster
-          #existing_cluster_id: 0711-231739-dxdxc9hq
+        - task_key: cost_agg_day
+          #job_cluster_key: job_cluster
+          existing_cluster_id: 0711-231739-dxdxc9hq
           notebook_task:
-            notebook_path: ../src/fetch_user_info_ad.py
+            notebook_path: ../src/define_budget.sql
             source: WORKSPACE
             base_parameters:
               output_catalog: "main"
@@ -34,4 +37,5 @@ resources:
             node_type_id: i3.xlarge
             autoscale:
               min_workers: 1
-              max_workers: 1
+              max_workers: 8
+

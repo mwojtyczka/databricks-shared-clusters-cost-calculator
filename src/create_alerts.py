@@ -20,9 +20,11 @@ dbutils.library.restartPython()
 
 dbutils.widgets.text("output_catalog", "main")
 dbutils.widgets.text("output_schema", "billing_usage_granular")
+dbutils.widgets.text("alert_prefix", "granular-billing-budget")
 
 catalog = dbutils.widgets.get("output_catalog")
 schema = dbutils.widgets.get("output_schema")
+alert_prefix = dbutils.widgets.get("alert_prefix")
 
 catalog_and_schema = f"{catalog}.{schema}"
 print(f"Use {catalog_and_schema}")
@@ -35,14 +37,14 @@ print(f"Use {catalog_and_schema}")
 # COMMAND ----------
 
 from databricks.sdk import WorkspaceClient
-from clusters_cost_allocation.dbsql_handler import DBSQLHandler
+from clusters_cost_allocation.dbsql_handler import SqlObjectsHandler
 from clusters_cost_allocation.dbsql_queries import (
     get_dbu_cost_alert_query_body,
     get_cloud_cost_alert_query_body,
 )
 
 w = WorkspaceClient()
-handler = DBSQLHandler(w, data_source_id=w.data_sources.list()[0].id)
+handler = SqlObjectsHandler(w)
 
 # COMMAND ----------
 
@@ -51,10 +53,11 @@ handler = DBSQLHandler(w, data_source_id=w.data_sources.list()[0].id)
 
 # COMMAND ----------
 
-alert_name_dbu_cost = "_granular-billing-budget-dbu-cost-alert"
-alert_name_cloud_cost = "_granular-billing-budget-cloud-cost-alert"
-query_name_dbu_cost = "_granular-billing-budget-dbu-cost-query"
-query_name_cloud_cost = "_granular-billing-budget-cloud-cost-query"
+alert_name_dbu_cost = alert_prefix + "-dbu-cost"
+query_name_dbu_cost = alert_prefix + "-dbu-cost"
+
+alert_name_cloud_cost = alert_prefix + "-cloud-cost"
+query_name_cloud_cost = alert_prefix + "-cloud-cost"
 
 handler.delete_query_and_alert(query_name_dbu_cost, alert_name_dbu_cost)
 handler.delete_query_and_alert(query_name_cloud_cost, alert_name_cloud_cost)

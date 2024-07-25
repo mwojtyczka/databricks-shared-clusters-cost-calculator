@@ -1,7 +1,7 @@
 resources:
   jobs:
-    create_alerts_job:
-      name: "granular billing usage: 4. create alerts"
+    create_dbsql_objects_job:
+      name: "Granular billing usage: 3. create alerts and dashboard"
 
       # overwrite the default run_as from the bundle
       #run_as:
@@ -21,6 +21,19 @@ resources:
             base_parameters:
               output_catalog: "main"
               output_schema: "billing_usage_granular"
+              alert_prefix: "granular-billing-budget"
+
+        - task_key: create_dashboard
+          #job_cluster_key: job_cluster
+          existing_cluster_id: 0711-231739-dxdxc9hq
+          notebook_task:
+            notebook_path: ../src/create_dashboard.py
+            source: WORKSPACE
+            base_parameters:
+              output_catalog: "main"
+              output_schema: "billing_usage_granular"
+              dashboard_name: "Granular Cost Allocation for Shared Clusters"
+              dashboard_file_path: "../lake_view/dashboard_template.json"
 
       job_clusters:
         - job_cluster_key: job_cluster
