@@ -32,14 +32,18 @@ def _get_base_alert_query_body(catalog_and_schema: str):
               mc.month,
               mc.total_dbu_cost,
               bi.dbu_cost_limit,
+              mc.total_cloud_cost,
+              bi.cloud_cost_limit,
               CASE
-                WHEN mc.total_dbu_cost <= bi.dbu_cost_limit THEN 'DBU Cost Within Budget'
-                ELSE 'DBU Cost Over Budget'
-              END AS dbu_budget_status,
+                WHEN mc.total_dbu_cost IS NULL OR bi.dbu_cost_limit IS NULL THEN NULL
+                WHEN mc.total_dbu_cost <= bi.dbu_cost_limit THEN false
+                ELSE true
+              END AS dbu_cost_over_budget,
               CASE
-                WHEN mc.total_cloud_cost <= bi.cloud_cost_limit THEN 'Cloud Cost Within Budget'
-                ELSE 'Cloud Cost Over Budget'
-              END AS cloud_budget_status
+                WHEN mc.total_cloud_cost IS NULL OR bi.cloud_cost_limit IS NULL THEN NULL
+                WHEN mc.total_cloud_cost <= bi.cloud_cost_limit THEN false
+                ELSE true
+              END AS cloud_cost_over_budget
             FROM monthly_costs mc
             INNER JOIN budget_info bi
               ON mc.department = bi.department
@@ -50,7 +54,7 @@ def _get_base_alert_query_body(catalog_and_schema: str):
               mc.department,
               mc.month
         )
-        SELECT COUNT(1) AS number_of_violations
+        SELECT COUNT(1) AS number_of_budget_violations
         FROM cost_report
     """
 
@@ -58,12 +62,12 @@ def _get_base_alert_query_body(catalog_and_schema: str):
 def get_dbu_cost_alert_query_body(catalog_and_schema: str):
     return (
         _get_base_alert_query_body(catalog_and_schema)
-        + " WHERE dbu_budget_status = 'DBU Cost Over Budget'"
+        + " WHERE dbu_cost_over_budget = true"
     )
 
 
 def get_cloud_cost_alert_query_body(catalog_and_schema: str):
     return (
         _get_base_alert_query_body(catalog_and_schema)
-        + " WHERE cloud_budget_status = 'Cloud Cost Over Budget'"
+        + " WHERE dbu_cost_over_budget = true"
     )

@@ -78,9 +78,9 @@ display(user_info_df)
 
 # MAGIC %sql
 # MAGIC INSERT INTO ${output_catalog}.${output_schema}.budget(organizational_entity_name, organizational_entity_value, dbu_cost_limit, cloud_cost_limit, currency_code, effective_start_date) VALUES
-# MAGIC ("department", "R&D", 3000000, 3500000, "USD", "2024-04-01"),
-# MAGIC ("department", "FE", 3000000, 3500000, "USD", "2024-04-01"),
-# MAGIC ("department", "PS", 1000000, 1500000, "USD", "2024-04-01");
+# MAGIC ("department", "R&D", 3000000.0, 3500000.0, "USD", "2024-04-01"),
+# MAGIC ("department", "FE", 3000000.0, 3500000.0, "USD", "2024-04-01"),
+# MAGIC ("department", "PS", 1000000.0, 1500000.0, "USD", "2024-04-01");
 
 # COMMAND ----------
 
