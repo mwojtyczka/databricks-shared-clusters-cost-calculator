@@ -3,7 +3,7 @@ def _get_base_alert_query_body(catalog_and_schema: str):
     return f"""
         WITH monthly_costs AS (
             SELECT
-              ui.department,
+              ui.organizational_entity_value AS department,
               cad.currency_code,
               CAST(DATE_TRUNC('month', cad.billing_date) AS DATE) as month,
               SUM(cad.dbu_cost) AS total_dbu_cost,
@@ -11,8 +11,10 @@ def _get_base_alert_query_body(catalog_and_schema: str):
             FROM {catalog_and_schema}.cost_agg_day cad
             INNER JOIN {catalog_and_schema}.user_info ui
               ON ui.user_name = cad.user_name
+            WHERE
+              ui.organizational_entity_name = 'department'
             GROUP BY
-              ui.department,
+              ui.organizational_entity_value,
               cad.currency_code,
               DATE_TRUNC('month', cad.billing_date)
         ),

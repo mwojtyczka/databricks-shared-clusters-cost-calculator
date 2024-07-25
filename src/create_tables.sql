@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS user_info(
   user_name string NOT NULL,
   user_id string NOT NULL,
   display_name string NOT NULL,
-  department string NOT NULL,
-  cost_center string NOT NULL,
+  organizational_entity_name string NOT NULL, -- eg. "department", "cost center"
+  organizational_entity_value string NOT NULL,
   CONSTRAINT pk PRIMARY KEY(user_name)
 );
 
@@ -68,14 +68,16 @@ CREATE TABLE IF NOT EXISTS cost_agg_day(
 -- COMMAND ----------
 
 CREATE TABLE IF NOT EXISTS budget(
-  organizational_entity_name string NOT NULL, -- eg. "department", "cost center", "user"
+  organizational_entity_name string NOT NULL, -- eg. "department", "cost center"
   organizational_entity_value string NOT NULL,
   dbu_cost_limit decimal(38, 2) NOT NULL,
   cloud_cost_limit decimal(38, 2) NOT NULL,
   currency_code string NOT NULL,
   effective_start_date date NOT NULL,
   effective_end_date date,
-  CONSTRAINT budget_pk PRIMARY KEY(organizational_entity_name, organizational_entity_value, effective_start_date)
+  CONSTRAINT budget_pk PRIMARY KEY(organizational_entity_name, organizational_entity_value, effective_start_date),
+  CONSTRAINT budget_org_name_users_fk FOREIGN KEY (organizational_entity_name) REFERENCES user_info,
+  CONSTRAINT budget_org_val_users_fk FOREIGN KEY (organizational_entity_value) REFERENCES user_info
 );
 
 -- COMMAND ----------

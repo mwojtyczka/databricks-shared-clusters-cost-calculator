@@ -41,18 +41,14 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
-# Setup authentication credentials for the Databricks Account
+# Retrieve authentication credentials
 account_id = "xxx"
 azure_client_id = "xxx"
 azure_tenant_id = "xxx"
 
 secrets_scope = "secrets"
-secret_name = "dbx-secret"
-
-secret_value = dbutils.secrets.get(secrets_scope, secret_name)
-
-# Used for the MS GraphAPI to retrieve cost center
-entra_id_token = ""
+azure_client_secret = dbutils.secrets.get(secrets_scope, "azure_client_secret")
+entra_id_auth_token = dbutils.secrets.get(secrets_scope, "entra_id_auth_token")
 
 # COMMAND ----------
 
@@ -63,7 +59,7 @@ acc = AccountClient(
     account_id=account_id,
     azure_client_id=azure_client_id,
     azure_tenant_id=azure_tenant_id,
-    azure_client_secret=secret_value,
+    azure_client_secret=azure_client_secret,
 )
 
 # COMMAND ----------
@@ -73,28 +69,12 @@ acc = AccountClient(
 
 # COMMAND ----------
 
-import re
 import requests
 
-headers = {"Authorization": f"Bearer {entra_id_token}"}
+headers = {"Authorization": f"Bearer {entra_id_auth_token}"}
 
 
-def extract_business_unit_from_name(name: str) -> str:
-    # Regular expression pattern to extract M
-    pattern = r"\(([A-Za-z\,\s]*)\/"
-
-    # Extract M using regex
-    result = re.search(pattern, name)
-
-    # Check if result is found and get the M
-    if result:
-        return result.group(1)
-
-    print(f"Error for user {name}")
-    return "MISSING_BU"
-
-
-def get_cost_center_for_user(email: str) -> str:
+def get_department_for_user(email: str) -> str:
     url = f"https://graph.microsoft.com/v1.0/users/{email}?$select=id,userPrincipalName,onPremisesExtensionAttributes"
     response = requests.get(url, headers=headers, timeout=360)
     return response.json()["onPremisesExtensionAttributes"]["extensionAttribute2"]
@@ -102,13 +82,14 @@ def get_cost_center_for_user(email: str) -> str:
 
 # COMMAND ----------
 
+# consider only users that are added to Databricks account
 account_users = [
     {
         "user_name": u.user_name,
         "user_id": u.id,
         "display_name": u.display_name,
-        "department": extract_business_unit_from_name(u.display_name),
-        "cost_center": get_cost_center_for_user(u.user_name),
+        "organizational_entity_name": "department",
+        "organizational_entity_value": get_department_for_user(u.display_name),
     }
     for u in acc.users.list()
 ]
@@ -118,9 +99,15 @@ account_users = [
 from pyspark.sql.functions import col
 
 user_info_df = spark.createDataFrame(account_users).where(
-    col("cost_center").isNotNull()
+    col("organizational_entity_value").isNotNull()
 )
 
-user_info_df.where(col("cost_center").isNotNull()).write.format("delta").mode(
-    "overwrite"
-).saveAsTable(f"{catalog_and_schema}.user_info")
+user_info_df.write.format("delta").mode("overwrite").saveAsTable(
+    f"{catalog_and_schema}.user_info"
+)
+
+# COMMAND ----------
+
+display(user_info_df)
+
+# COMMAND ----------
