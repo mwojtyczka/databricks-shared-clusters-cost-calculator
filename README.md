@@ -127,7 +127,7 @@ The solution uses numerous system tables to perform the calculation and write th
 For the **cost calculation** the following system tables are required:
 * Billing usage system table ([system.billing.usage](https://docs.databricks.com/en/admin/system-tables/billing.html)) containing DBU consumption of SQL Warehouses per day from all UC-enabled workspaces.
 * Query History system table (`system.query.history`) containing query history of SQL Warehouses from all UC-enabled workspaces. Currently in Private Preview.
-* List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing.
+* List Prices system table ([system.billing.list_prices](https://docs.databricks.com/en/admin/system-tables/pricing.html)) containing historical log of SKU pricing. Should be replaced by `account_prices` in the future to get customer specific SKU pricing.
 * Cloud Infra Cost system table (`system.billing.cloud_infra_cost`) containing cloud costs (VM and cloud storage). Currently in Private Preview.
 
 For the **dashboard** and **alerts** the following tables are required (deployed as part of the `create_tables_job` job):
