@@ -43,8 +43,8 @@ The project uses [Databricks Assets Bundles (DAB)](https://docs.databricks.com/e
 
 Once the project is deployed, the following Jobs are created in your Databricks Workspace:
 * `Granular billing usage: 1. create tables`
-* `Granular billing usage: 2. calculate`
-* `Granular billing usage: 3. create alerts and dashboard`
+* `Granular billing usage: 2. create alerts and dashboard`
+* `Granular billing usage: 3. calculate`
 * `Granular billing usage: 4. define budget`
 * `Granular billing usage: 5. fetch user info`
 
@@ -86,15 +86,15 @@ and user name to use for the deployment.
    ```
    $ databricks bundle run create_tables_job --target dev
    ```
-   
-   b) Run the calculation:
-   ```
-   $ databricks bundle run calculate_job --target dev
-   ```
 
-   c) Deploy Databricks SQL Alerts and Dashboard:
+   b) Deploy Databricks SQL Alerts and Lake View dashboard:
    ```
    $ databricks bundle run create_dbsql_objects_job --target dev
+   ```   
+
+   c) Run the calculation:
+   ```
+   $ databricks bundle run calculate_job --target dev
    ```
    
     d) Define budget limits:
