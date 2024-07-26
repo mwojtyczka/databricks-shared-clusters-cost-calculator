@@ -143,7 +143,7 @@ This table is populated by `fetch_user_info_job` job using extension attributes 
 | organizational_entity_value  | string | Organizational entity value            | R&D                                 |             |
 
 
-* Budget table (`budget`) contains spending limits for your organizational entity (e.g. department).
+* Budget table (`budget`) contains monthly spending limits for your organizational entity (e.g. department).
 This table is populated by `define_budget_job` job.
 
 | Column                      | Type       | Description                          | Example data                  | Constraints        |
