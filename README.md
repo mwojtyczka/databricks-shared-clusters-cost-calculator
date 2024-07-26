@@ -4,6 +4,8 @@ Granular Cost Calculator for Databricks Shared Clusters
 This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective
 organizational entities (e.g. cost center, departments / business units) and save the results as a delta table.
 
+# Motivation
+
 Many organizations would like to adopt a "cost centre" approach by invoicing DBU consumption against individual users, 
 teams, business units/departments, or cost centers. 
 Currently, Databricks provides DBU consumption data for the entire cluster, 
@@ -25,6 +27,7 @@ See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 
 <!-- TOC -->
 * [Granular Cost Calculator for Databricks Shared Clusters](#granular-cost-calculator-for-databricks-shared-clusters)
+* [Motivation](#motivation)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Design](#design)
@@ -58,10 +61,15 @@ Deploy and execute them in the given order.
 
 ### Steps:
 
-1. Authenticate to your Databricks workspace, if you have not done so already:
-    ```
-    $ databricks configure
-    ```
+1. Once you install Databricks CLI, authenticate your current machine to a Databricks Workspace:
+
+   ```commandline
+   databricks auth login --host <WORKSPACE_HOST>
+   ```
+
+   To enable debug logs, simply add `--debug` flag to any command.
+   More about authentication options [here](https://docs.databricks.com/en/dev-tools/cli/authentication.html).   
+
 2. Update job templates in [resources](resources) to configure parameters like output catalog, output schema etc.
 
 3. Update bundle configuration under [databricks.yml](databricks.yml) to provide workspace host 
