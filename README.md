@@ -24,6 +24,7 @@ See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 [![build](https://github.com/mwojtyczka/databricks-shared-clusters-cost-calculator/actions/workflows/push.yml/badge.svg)](https://github.com/mwojtyczka/databricks-shared-clusters-cost-calculator/actions/workflows/push.yml) [![codecov](https://codecov.io/github/mwojtyczka/databricks-shared-clusters-cost-calculator/graph/badge.svg?token=p0WKAfW5HQ)](https://codecov.io/github/mwojtyczka/databricks-shared-clusters-cost-calculator)  ![linesofcode](https://aschey.tech/tokei/github/mwojtyczka/databricks-shared-clusters-cost-calculator?category=code)
 
 <!-- TOC -->
+* [Granular Cost Calculator for Databricks Shared Clusters](#granular-cost-calculator-for-databricks-shared-clusters)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Design](#design)
