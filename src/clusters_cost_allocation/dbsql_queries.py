@@ -63,6 +63,11 @@ def _get_base_alert_query_body(catalog_and_schema: str):
 
 
 def get_dbu_cost_alert_query_body(catalog_and_schema: str):
+    """
+    Get query body for the dbu cost alert.
+    @param catalog_and_schema: catalog and schema to use
+    @return:
+    """
     return (
         _get_base_alert_query_body(catalog_and_schema)
         + " WHERE dbu_cost_over_budget = true"
@@ -70,6 +75,11 @@ def get_dbu_cost_alert_query_body(catalog_and_schema: str):
 
 
 def get_cloud_cost_alert_query_body(catalog_and_schema: str):
+    """
+    Get query body for the cloud cost alert.
+    @param catalog_and_schema: catalog and schema to use
+    @return:
+    """
     return (
         _get_base_alert_query_body(catalog_and_schema)
         + " WHERE dbu_cost_over_budget = true"

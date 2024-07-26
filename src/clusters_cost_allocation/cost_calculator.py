@@ -1,8 +1,10 @@
+import logging
 from datetime import datetime, date
 from functools import reduce
 from operator import add
 from collections.abc import KeysView
 
+from pyspark.sql import DataFrame
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
@@ -29,19 +31,32 @@ from pyspark.sql.types import (
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 class CostCalculatorIO:
     def __init__(self, spark: SparkSession, catalog_and_schema: str):
         self.spark = spark
         self.catalog_and_schema = catalog_and_schema
 
     def read_checkpoint(self, table: str) -> date | None:
+        """
+        Read checkpoint
+        @param table: table name to read the checkpoint from
+        @return: checkpoint date
+        """
         full_table = self._construct_full_table(table)
-        print(f"Reading checkpoint from `{full_table}`")
+        logger.info(f"Reading checkpoint from `{full_table}`")
 
         df = self.spark.table(full_table)
         return self.get_max_date(df, "last_processed_date")
 
     def save_checkpoint(self, table: str, new_checkpoint: date) -> None:
+        """
+        Save checkpoint
+        @param table: table name to write the checkpoint to
+        @param new_checkpoint: new checkpoint date
+        """
         full_table = self._construct_full_table(table)
 
         schema = StructType(
@@ -56,9 +71,17 @@ class CostCalculatorIO:
         )
         df.write.mode("overwrite").saveAsTable(full_table)
 
-        print(f"Saved checkpoint to `{full_table}` as {new_checkpoint}")
+        logger.info(f"Saved checkpoint to `{full_table}` as {new_checkpoint}")
 
-    def save_costs(self, costs_df, table: str, last_checkpoint: date) -> None:
+    def save_costs(
+        self, costs_df: DataFrame, table: str, last_checkpoint: date
+    ) -> None:
+        """
+        Save costs in a table.
+        @param costs_df: DataFrame containing costs
+        @param table: table name
+        @param last_checkpoint: last checkpoint
+        """
         full_table = self._construct_full_table(table)
 
         if last_checkpoint:
@@ -68,7 +91,7 @@ class CostCalculatorIO:
 
         costs_df.write.mode("append").saveAsTable(full_table)
 
-        print(f"Saved cost calculation to `{full_table}`")
+        logger.info(f"Saved cost calculation to `{full_table}`")
 
     def _construct_full_table(self, table: str) -> str:
         return self.catalog_and_schema + "." + table
@@ -78,28 +101,60 @@ class CostCalculatorIO:
         table: str,
         last_checkpoint: date = None,
         current_date: date = datetime.now().date(),
-    ):
-        print(f"Reading query history from `{table}`")
+    ) -> DataFrame:
+        """
+        Read query history.
+        @param table: table name
+        @param last_checkpoint: last checkpoint
+        @param current_date: current date
+        @return:
+        """
+        logger.info(f"Reading query history from `{table}`")
         queries = self.spark.table(table)
         return self.prepare_query_history(queries, last_checkpoint, current_date)
 
-    def read_billing(self, table: str, last_checkpoint: datetime = None):
-        print(f"Reading billing from `{table}`")
+    def read_billing(self, table: str, last_checkpoint: datetime = None) -> DataFrame:
+        """
+        Read billing info.
+        @param table: table name
+        @param last_checkpoint: last checkpoint
+        @return:
+        """
+        logger.info(f"Reading billing from `{table}`")
         df = self.spark.table(table)
         return self.prepare_billing(df, last_checkpoint)
 
-    def read_list_prices(self, table: str):
-        print(f"Reading list prices from `{table}`")
+    def read_list_prices(self, table: str) -> DataFrame:
+        """
+        Read list prices.
+        @param table: table name
+        @return:
+        """
+        logger.info(f"Reading list prices from `{table}`")
         df = self.spark.table(table)
         return self.prepare_list_prices(df)
 
-    def read_cloud_infra_cost(self, table: str, last_checkpoint: datetime = None):
-        print(f"Reading cloud infra cost from `{table}`")
+    def read_cloud_infra_cost(
+        self, table: str, last_checkpoint: datetime = None
+    ) -> DataFrame:
+        """
+        Read cloud infra cost.
+        @param table: table name
+        @param last_checkpoint: last checkpoint
+        @return:
+        """
+        logger.info(f"Reading cloud infra cost from `{table}`")
         df = self.spark.table(table)
         return self.prepare_cloud_infra_cost(df, last_checkpoint)
 
     @staticmethod
-    def get_max_date(df, column: str) -> date | None:
+    def get_max_date(df: DataFrame, column: str) -> date | None:
+        """
+        Get max date from a DataFrame.
+        @param df: DataFrame
+        @param column: column name
+        @return:
+        """
         if df.count() > 0:
             df = df.withColumn(column + "_new", to_date(col(column)))
             date_str = df.agg({column + "_new": "max"}).collect()[0][0]
@@ -108,10 +163,17 @@ class CostCalculatorIO:
 
     @staticmethod
     def prepare_query_history(
-        queries_df,
+        queries_df: DataFrame,
         last_checkpoint: date = None,
         current_date: date = datetime.now().date(),
-    ):
+    ) -> DataFrame:
+        """
+        Prepare query history.
+        @param queries_df: DataFrame containing query history
+        @param last_checkpoint: last checkpoint
+        @param current_date: current date
+        @return:
+        """
         queries_df = (
             # if a query spans 2 days, the cost is attributed to the end date only
             # splitting is not implemented as it would be very computational intense
@@ -122,11 +184,11 @@ class CostCalculatorIO:
             .drop("compute")
         )
 
-        print(f"Filtering query history to get results before {current_date}")
+        logger.info(f"Filtering query history to get results before {current_date}")
         queries_df = queries_df.filter(col("billing_date") < current_date)
 
         if last_checkpoint:
-            print(
+            logger.info(
                 f"Filtering query history using checkpoint to get results after {last_checkpoint}"
             )
             queries_df = queries_df.filter(col("billing_date") > last_checkpoint)
@@ -135,8 +197,14 @@ class CostCalculatorIO:
 
     @staticmethod
     def prepare_list_prices(
-        list_prices_df, current_date: datetime = datetime.now().date()
-    ):
+        list_prices_df: DataFrame, current_date: datetime = datetime.now().date()
+    ) -> DataFrame:
+        """
+        Prepare list prices.
+        @param list_prices_df: DataFrame containing list prices
+        @param current_date: current date
+        @return:
+        """
         list_prices_df = list_prices_df.withColumn(
             "price_end_time",
             when(col("price_end_time").isNull(), to_date(lit(current_date))).otherwise(
@@ -171,7 +239,15 @@ class CostCalculatorIO:
         return daily_df
 
     @staticmethod
-    def prepare_billing(billing_df, last_checkpoint: date = None):
+    def prepare_billing(
+        billing_df: DataFrame, last_checkpoint: date = None
+    ) -> DataFrame:
+        """
+        Prepare billing.
+        @param billing_df: DataFrame containing billing
+        @param last_checkpoint: last checkpoint
+        @return:
+        """
         billing_df = billing_df.filter(
             "usage_metadata.warehouse_id is not null"
         )  # limit results to sql warehouses only
@@ -203,7 +279,15 @@ class CostCalculatorIO:
         )
 
     @staticmethod
-    def prepare_cloud_infra_cost(cloud_infra_cost_df, last_checkpoint: date = None):
+    def prepare_cloud_infra_cost(
+        cloud_infra_cost_df: DataFrame, last_checkpoint: date = None
+    ) -> DataFrame:
+        """
+        Prepare cloud infra cost.
+        @param cloud_infra_cost_df: DataFrame containing cloud infra cost
+        @param last_checkpoint: last checkpoint
+        @return:
+        """
         cloud_infra_cost_df = cloud_infra_cost_df.filter(
             "usage_metadata.warehouse_id is not null"
         )  # limit results to sql warehouses only
@@ -239,12 +323,21 @@ class CostCalculator:
     def calculate_cost_agg_day(
         self,
         metric_to_weight_map: dict[str, float],
-        queries_df,
-        list_prices_df,
-        billing_df,
-        cloud_infra_cost_df,
-    ):
-        print("Calculating cost agg day ...")
+        queries_df: DataFrame,
+        list_prices_df: DataFrame,
+        billing_df: DataFrame,
+        cloud_infra_cost_df: DataFrame,
+    ) -> DataFrame:
+        """
+        Calculate cost aggregated per day.
+        @param metric_to_weight_map: DataFrame containing metrics to weights map
+        @param queries_df: DataFrame containing query history
+        @param list_prices_df: DataFrame containing list prices
+        @param billing_df: DataFrame containing billing
+        @param cloud_infra_cost_df: DataFrame containing cloud infra cost
+        @return:
+        """
+        logger.info("Calculating cost agg day ...")
 
         normalized_queries_df = self._normalize_metrics(
             queries_df, metric_to_weight_map.keys()
@@ -260,7 +353,7 @@ class CostCalculator:
         return costs_all_df
 
     @staticmethod
-    def _normalize_metrics(queries_df, metrics: KeysView[str]):
+    def _normalize_metrics(queries_df: DataFrame, metrics: KeysView[str]) -> DataFrame:
         queries_df = queries_df.withColumnRenamed(
             "executed_by", "user_name"
         ).withColumnRenamed("executed_by_user_id", "user_id")
@@ -291,8 +384,8 @@ class CostCalculator:
 
     @staticmethod
     def _calculate_weighted_sum(
-        normalized_queries_df, metric_to_weight_map: dict[str, float]
-    ):
+        normalized_queries_df: DataFrame, metric_to_weight_map: dict[str, float]
+    ) -> DataFrame:
         # Multiply each metric by its weight
         queries_and_weights_df = normalized_queries_df
         for norm_col in metric_to_weight_map.keys():
@@ -317,7 +410,7 @@ class CostCalculator:
         return queries_and_weights_df
 
     @staticmethod
-    def _calculate_normalized_contribution(weighted_sum_df):
+    def _calculate_normalized_contribution(weighted_sum_df: DataFrame) -> DataFrame:
         # Calculate the total sum of contributions for each user
         user_contributions_df = weighted_sum_df.groupBy(
             "user_name",
@@ -354,7 +447,9 @@ class CostCalculator:
         return normalized_df
 
     @staticmethod
-    def _enrich_with_list_prices(billing_df, list_prices_df):
+    def _enrich_with_list_prices(
+        billing_df: DataFrame, list_prices_df: DataFrame
+    ) -> DataFrame:
         list_prices_df = list_prices_df.where((col("usage_unit") == lit("DBU"))).drop(
             "usage_unit"
         )
@@ -367,7 +462,9 @@ class CostCalculator:
         return billing_pricing_df
 
     @staticmethod
-    def _calculate_dbu_consumption(contribution_df, billing_pricing_df):
+    def _calculate_dbu_consumption(
+        contribution_df: DataFrame, billing_pricing_df: DataFrame
+    ) -> DataFrame:
         dbu_df = (
             contribution_df.join(
                 billing_pricing_df,
@@ -409,7 +506,9 @@ class CostCalculator:
         )
 
     @staticmethod
-    def _enrich_with_cloud_infra_cost(dbu_df, cloud_infra_cost_df):
+    def _enrich_with_cloud_infra_cost(
+        dbu_df: DataFrame, cloud_infra_cost_df: DataFrame
+    ) -> DataFrame:
         cost_df = (
             dbu_df.join(
                 cloud_infra_cost_df,
