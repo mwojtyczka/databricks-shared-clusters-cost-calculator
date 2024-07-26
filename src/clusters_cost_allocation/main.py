@@ -1,23 +1,30 @@
 import argparse
+import logging
 from pyspark.sql import SparkSession
 from clusters_cost_allocation.cost_calculator import CostCalculatorIO, CostCalculator
 from clusters_cost_allocation.metrics import get_metric_to_weight_map
 
 spark = SparkSession.builder.getOrCreate()
+logger = logging.getLogger(__name__)
 
 
 def run_cost_agg_day(
     catalog: str,
     schema: str,
 ):
-    print(f"Using output catalog: {catalog}")
-    print(f"Using output schema: {schema}")
+    """
+    Run cost calculation aggregated per day.
+    @param catalog: Unity Catalog catalog name to use
+    @param schema: Unity Catalog schema name to use
+    """
+    logger.info(f"Using output catalog: {catalog}")
+    logger.info(f"Using output schema: {schema}")
 
     catalog_and_schema = catalog + "." + schema
     calculator_io = CostCalculatorIO(spark, catalog_and_schema)
 
     last_checkpoint = calculator_io.read_checkpoint("checkpoint")
-    print(f"Last checkpoint: {last_checkpoint}")
+    logger.info(f"Last checkpoint: {last_checkpoint}")
 
     queries_df = calculator_io.read_query_history(
         "system.query.history", last_checkpoint
@@ -40,16 +47,21 @@ def run_cost_agg_day(
     calculator_io.save_costs(cost_agg_day_df, "cost_agg_day", last_checkpoint)
 
     if cost_agg_day_df.count() == 0:
-        print("No data available from daily calculation.")
+        logger.info("No data available from daily calculation.")
         return
 
     new_checkpoint = calculator_io.get_max_date(cost_agg_day_df, "billing_date")
     calculator_io.save_checkpoint("checkpoint", new_checkpoint)
 
-    print("Finished successfully")
+    logger.info("Finished successfully")
 
 
 def main(catalog: str, schema: str):
+    """
+    Main method of the calculator.
+    @param catalog: UC catalog name to use
+    @param schema: UC schema name to use
+    """
     run_cost_agg_day(catalog, schema)
 
 

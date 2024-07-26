@@ -4,8 +4,8 @@ import math
 def get_metric_to_weight_map() -> dict[str, float]:
     """
     Get mapping of query metrics to weights.
+    @return:
     """
-
     # Total task duration (total_task_duration_ms) gives a good estimation of the cluster CPU utilization,
     # therefore, plays a very important role in the cost calculation, especially for larger distributed queries.
     # It’s important to include total duration (total_duration_ms) and compilation (compilation_duration_ms)
