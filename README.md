@@ -36,6 +36,8 @@ See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 # Prerequisites
 
 In order to deploy the project, the following is required:
+* Python 3.10 or later. See [instructions](https://www.python.org/downloads/).
+* Databricks CLI v0.213 or later. See [instructions](https://docs.databricks.com/dev-tools/cli/databricks-cli.html).
 * At least one Unity Catalog-enabled [workspace](https://docs.databricks.com/en/getting-started/index.html) in your Databricks account.
 * Access to [system tables](https://docs.databricks.com/en/admin/system-tables/index.html#grant-access-to-system-tables)
 
@@ -56,35 +58,33 @@ Deploy and execute them in the given order.
 
 ### Steps:
 
-1. Install the Databricks CLI (see [here](https://docs.databricks.com/dev-tools/cli/databricks-cli.html)).
-
-2. Authenticate to your Databricks workspace, if you have not done so already:
+1. Authenticate to your Databricks workspace, if you have not done so already:
     ```
     $ databricks configure
     ```
-3. Update job templates in [resources](resources) to provide parameters like output catalog, output schema etc.
+2. Update job templates in [resources](resources) to configure parameters like output catalog, output schema etc.
 
-4. Update bundle configuration under [databricks.yml](databricks.yml) to provide workspace host 
+3. Update bundle configuration under [databricks.yml](databricks.yml) to provide workspace host 
 and user name to use for the deployment.
 
-5. Validate the bundle configuration:
+4. Validate the bundle configuration:
     ```
     $ databricks bundle validate --target dev
     ```
 
     Note that "dev" is the default target, so the `--target` parameter is optional here. 
 
-6. Deploy a development copy of this project to the workspace:
+5. Deploy a development copy of this project to the workspace:
     ```
     $ databricks bundle deploy --target dev
     ```
 
-7. Similarly, if you want to deploy a production copy of this project to the workspace:
+6. Similarly, if you want to deploy a production copy of this project to the workspace:
    ```
    $ databricks bundle deploy --target prod
    ```
    
-8. Run the jobs:
+7. Run the jobs:
 
    a) Deploy tables:
    ```
