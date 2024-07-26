@@ -181,6 +181,7 @@ Only users that have consumed any DBUs in the given day are included.
 only specific rows can be viewed by specific departments/users. 
 The table can be joined to the User Info table (`user_info`) to retrieve additional contextual information 
 about the users (e.g. cost center, department), and to the Budget table (`budget`) to get info about spending limits.
+Examples are included in the project as part of the alerts and the dashboard.
 
 ### Cost Calculation
 
@@ -222,6 +223,6 @@ Future updates will include Storage and Network costs, as well as support for ot
 
 # Future work
 
-* More IdPs: Extend the User Info workflow to provide examples for more IdP providers (e.g. Okta, One Login).
+* More IdPs: Extend the fetch user info workflow to provide examples for more IdP providers (e.g. Okta, One Login).
 Currently only example for Microsoft Entra ID is available.
 * Add support for regular Databricks clusters (all-purpose and job compute).
