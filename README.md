@@ -1,4 +1,5 @@
-# Introduction
+Granular Cost Calculator for Databricks Shared Clusters
+===
 
 This project allocates billing usage of Databricks “Shared” SQL Warehouses to individual users and their respective
 organizational entities (e.g. cost center, departments / business units) and save the results as a delta table.
@@ -36,6 +37,8 @@ See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 In order to deploy the project, the following is required:
 * At least one Unity Catalog-enabled [workspace](https://docs.databricks.com/en/getting-started/index.html) in your Databricks account.
 * Access to [system tables](https://docs.databricks.com/en/admin/system-tables/index.html#grant-access-to-system-tables)
+
+[[back to top](#granular-cost-calculator-for-databricks-shared-clusters)]
 
 # Installation
 
@@ -114,6 +117,8 @@ and user name to use for the deployment.
     If you want to skip the step and pre-populate `user_info` table with sample data for demo purposes,
     import and run [this notebook](lake_view/demo_setup.py).
     You can use this to quickly get started before fetching the user info from your IdP provider.
+
+[[back to top](#granular-cost-calculator-for-databricks-shared-clusters)]
 
 # Design
 
@@ -206,9 +211,13 @@ This is to ensure that the calculation is done incrementally (only for queries n
 If you want to re-process the data, reset the checkpoint to a previous date. 
 But note that most system tables have small retention time (usually up to a month) so you need to be careful. 
 
+[[back to top](#granular-cost-calculator-for-databricks-shared-clusters)]
+
 # Contribution
 
 See contribution guidance [here](CONTRIBUTING.md).
+
+[[back to top](#granular-cost-calculator-for-databricks-shared-clusters)]
 
 # Limitations
 
@@ -221,8 +230,12 @@ However, currently, cloud cost reporting is only available for AWS.
 The reported cloud costs include EC2-related expenses. 
 Future updates will include Storage and Network costs, as well as support for other cloud providers.
 
+[[back to top](#granular-cost-calculator-for-databricks-shared-clusters)]
+
 # Future work
 
 * More IdPs: Extend the fetch user info workflow to provide examples for more IdP providers (e.g. Okta, One Login).
 Currently only example for Microsoft Entra ID is available.
 * Add support for regular Databricks clusters (all-purpose and job compute).
+
+[[back to top](#granular-cost-calculator-for-databricks-shared-clusters)]
