@@ -14,6 +14,7 @@ organizational entities to unify cluster configuration and maximize utilization.
 
 An alternative solution is to create separate clusters for each department. 
 However, this requires reconfiguration of the existing applications (e.g. PowerBI) 
+However, this requires reconfiguration of the existing applications (e.g. PowerBI) 
 and does not provide per user cost allocation.
 
 For questions, troubleshooting or bug fixes, please submit [an issue](https://github.com/mwojtyczka/databricks-shared-clusters-cost-calculator/issues).
@@ -25,7 +26,6 @@ See [contributing instructions](CONTRIBUTING.md) to help improve this project.
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Design](#design)
-* [Local Development](#local-development)
 * [Contribution](#contribution)
 * [Limitations](#limitations)
 * [Future Work](#future-work)
