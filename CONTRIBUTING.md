@@ -100,7 +100,7 @@ make all
 
 Here are the example steps to submit your first contribution:
 
-1. Make a Fork from ucx repo (if you really want to contribute)
+1. Make a Fork from the repo (if you really want to contribute)
 2. `git clone`
 3. `git checkout main` (or `gcm` if you're using [ohmyzsh](https://ohmyz.sh/)).
 4. `git pull` (or `gl` if you're using [ohmyzsh](https://ohmyz.sh/)).
