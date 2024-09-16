@@ -3,7 +3,6 @@ from databricks.sdk.service import sql
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.dashboards import Dashboard
 from databricks.sdk.service.dashboards import PublishedDashboard
-from rate_limiter import rate_limited
 
 logger = logging.getLogger(__name__)
 
@@ -88,10 +87,9 @@ class SqlObjectsHandler:
             dashboard_id=dashboard_id, warehouse_id=warehouse_id
         )
 
-    @rate_limited(max_requests=100)
     def _delete_alert(self, name: str):
         alert_id = None
-        for alert in self.w.alerts.list(page_size=100):
+        for alert in self.w.alerts.list():
             if alert.display_name == name:
                 logger.info(f"found alert: {name}")
                 alert_id = alert.id
@@ -101,10 +99,9 @@ class SqlObjectsHandler:
             logger.info(f"deleting alert: {name}")
             self.w.alerts.delete(id=alert_id)
 
-    @rate_limited(max_requests=100)
     def _delete_query(self, name: str):
         query_id = None
-        for query in self.w.queries.list(page_size=100):
+        for query in self.w.queries.list():
             if query.display_name == name:
                 logger.info(f"found query: {name}")
                 query_id = query.id
