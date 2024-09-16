@@ -4,7 +4,6 @@ from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.dashboards import Dashboard
 from databricks.sdk.service.dashboards import PublishedDashboard
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -91,40 +90,49 @@ class SqlObjectsHandler:
     def _delete_alert(self, name: str):
         alert_id = None
         for alert in self.w.alerts.list():
-
-            if alert.name == name:
+            if alert.display_name == name:
                 logger.info(f"found alert: {name}")
                 alert_id = alert.id
                 break
 
         if alert_id:
             logger.info(f"deleting alert: {name}")
-            self.w.alerts.delete(alert_id=alert_id)
+            self.w.alerts.delete(id=alert_id)
 
     def _delete_query(self, name: str):
         query_id = None
         for query in self.w.queries.list():
-            if query.name == name:
+            if query.display_name == name:
                 logger.info(f"found query: {name}")
                 query_id = query.id
                 break
 
         if query_id:
             logger.info(f"deleting query: {name}")
-            self.w.queries.delete(query_id=query_id)
+            self.w.queries.delete(id=query_id)
 
     def _create_query(self, name: str, query_body: str, description: str):
         logger.info(f"creating query: {name}")
         return self.w.queries.create(
-            name=name,
-            description=description,
-            query=query_body,
+            query=sql.CreateQueryRequestQuery(
+                display_name=name, description=description, query_text=query_body
+            )
         )
 
     def _create_alert(self, name: str, query_id: str):
         logger.info(f"creating alert: {name}")
         return self.w.alerts.create(
-            options=sql.AlertOptions(column="1", op=">", value="0"),
-            name=name,
-            query_id=query_id,
+            alert=sql.CreateAlertRequestAlert(
+                condition=sql.AlertCondition(
+                    operand=sql.AlertConditionOperand(
+                        column=sql.AlertOperandColumn(name="1")
+                    ),
+                    op=sql.AlertOperator.GREATER_THAN,
+                    threshold=sql.AlertConditionThreshold(
+                        value=sql.AlertOperandValue(double_value=0)
+                    ),
+                ),
+                display_name=name,
+                query_id=query_id,
+            )
         )

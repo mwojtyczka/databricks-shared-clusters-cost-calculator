@@ -119,6 +119,10 @@ Here are the example steps to submit your first contribution:
     to an existing issue. 
 15. Announce PR for the review
 
+## Make deployment
+
+See installation guidance [here](README.md#installation).
+
 ## Troubleshooting
 
 If you encounter any package dependency errors after `git pull`, run `make clean`

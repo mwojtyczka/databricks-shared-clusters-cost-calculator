@@ -33,7 +33,7 @@ print(f"Use {catalog_and_schema}")
 
 # COMMAND ----------
 
-# MAGIC %pip install databricks-sdk -U
+# MAGIC %pip install databricks-sdk==0.32.1 -U
 
 # COMMAND ----------
 
