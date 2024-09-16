@@ -6,7 +6,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install databricks-sdk --upgrade
+# MAGIC %pip install databricks-sdk==0.32.1 --upgrade
 
 # COMMAND ----------
 
