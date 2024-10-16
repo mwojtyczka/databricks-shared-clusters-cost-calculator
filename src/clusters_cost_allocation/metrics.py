@@ -13,20 +13,12 @@ def get_metric_to_weight_map() -> dict[str, float]:
     # But since larger queries can complete relatively quickly if the cluster is autoscaled,
     # compilation and execution time can skew the calculation and therefore should have smaller weight
     # than total task duration.
-    # The remaining 15% of the contribution comes from metrics related to IO operations which play some role
-    # in cost contribution but overall are more important for storage cost calculation.
-    #
     # Note that total query duration (total_duraction_ms) metric is not useful in the cost calculation
     # because it is heavily influenced by scaling activities (waiting time).
     mapping = {
-        "total_task_duration_ms": 0.5,
-        "execution_duration_ms": 0.3,
+        "total_task_duration_ms": 0.8,
+        "execution_duration_ms": 0.15,
         "compilation_duration_ms": 0.05,
-        "read_files": 0.03,
-        "read_bytes": 0.03,
-        "read_rows": 0.03,
-        "produced_rows": 0.03,
-        "written_bytes": 0.03,
     }
 
     total_weight = sum(mapping.values())

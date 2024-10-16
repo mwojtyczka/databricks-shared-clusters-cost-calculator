@@ -19,7 +19,7 @@ fmt: ## run black to format the code
 lint: ## run linter to check the code
 	poetry run pycodestyle src
 	poetry run autoflake --check-diff --quiet --recursive src
-	poetry run pylint --output-format=colorized -j 0 src
+	poetry run pylint --rcfile ./pyproject.toml --output-format=colorized -j 0 src
 
 clean: ## clean up temp files
 	rm -fr dist *.egg-info .pytest_cache build coverage .junittest*.xml coverage.xml .coverage* sphinx_docs/_build **/__pycache__
