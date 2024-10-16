@@ -320,7 +320,7 @@ class CostCalculatorIO:
 
 class CostCalculator:
 
-    def calculate_cost_agg_day(  # pylint: disable=too-many-arguments
+    def calculate_cost_agg_day(
         self,
         metric_to_weight_map: dict[str, float],
         queries_df: DataFrame,
