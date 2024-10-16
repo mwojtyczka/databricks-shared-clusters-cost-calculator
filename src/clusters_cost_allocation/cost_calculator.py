@@ -320,14 +320,14 @@ class CostCalculatorIO:
 
 class CostCalculator:
 
-    def calculate_cost_agg_day(
+    def calculate_cost_agg_day(  # pylint: disable=too-many-arguments
         self,
         metric_to_weight_map: dict[str, float],
         queries_df: DataFrame,
         list_prices_df: DataFrame,
         billing_df: DataFrame,
         cloud_infra_cost_df: DataFrame,
-    ) -> DataFrame:  # pylint: disable=too-many-arguments
+    ) -> DataFrame:
         """
         Calculate cost aggregated per day.
         @param metric_to_weight_map: DataFrame containing metrics to weights map
