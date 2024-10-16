@@ -1521,7 +1521,7 @@ def test_should_calculate_daily_costs_for_2_users(
                     140,
                     150,
                     None,
-                )
+                ),
             ],
             system_query_history_schema,
         ),
@@ -1604,7 +1604,7 @@ def test_should_calculate_daily_costs_for_2_users(
                 Decimal(45.00),
                 None,
                 "EUR",
-            )
+            ),
         ],
         cost_agg_day_schema,
     )
