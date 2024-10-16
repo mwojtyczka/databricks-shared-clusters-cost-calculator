@@ -362,8 +362,6 @@ class CostCalculator:
             "account_id",
             "workspace_id",
             "warehouse_id",
-            "user_name",
-            "user_id",
             "billing_date",
         )
 

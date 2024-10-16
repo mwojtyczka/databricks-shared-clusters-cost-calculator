@@ -1420,3 +1420,203 @@ def test_should_calculate_daily_costs_when_missing_cloud_infra_cost(
         ignore_column_order=True,
         ignore_row_order=True,
     )
+
+
+def test_should_calculate_daily_costs_for_2_users(
+    spark_session: SparkSession,
+):  # using pytest-spark
+    weights = {"total_duration_ms": 1.0}
+
+    queries_df = CostCalculatorIO.prepare_query_history(
+        spark_session.createDataFrame(
+            [
+                (
+                    "account1",
+                    "workspace1",
+                    "statement1",
+                    "user1@databricks.com",
+                    "session1",
+                    "FINISHED",
+                    {
+                        "type": "WAREHOUSE",
+                        "cluster_id": None,
+                        "warehouse_id": "warehouse1",
+                    },
+                    "user1",
+                    "select 1",
+                    "SELECT",
+                    None,
+                    None,
+                    None,
+                    datetime.strptime(
+                        "2024-01-25 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:06:07.260", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:06:07.550", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    10,
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    None,
+                ),
+                (
+                    "account1",
+                    "workspace1",
+                    "statement1",
+                    "user2@databricks.com",
+                    "session1",
+                    "FINISHED",
+                    {
+                        "type": "WAREHOUSE",
+                        "cluster_id": None,
+                        "warehouse_id": "warehouse1",
+                    },
+                    "user2",
+                    "select 1",
+                    "SELECT",
+                    None,
+                    None,
+                    None,
+                    datetime.strptime(
+                        "2024-01-25 23:07:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:07:07.260", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:07:07.550", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    90,
+                    0,
+                    10,
+                    20,
+                    30,
+                    40,
+                    50,
+                    60,
+                    70,
+                    80,
+                    90,
+                    100,
+                    110,
+                    120,
+                    130,
+                    140,
+                    150,
+                    None,
+                )
+            ],
+            system_query_history_schema,
+        ),
+    )
+
+    list_prices_df = CostCalculatorIO.prepare_list_prices(
+        spark_session.createDataFrame(
+            [
+                (
+                    "account1",
+                    "AZURE",
+                    "PREMIUM_SQL_PRO_COMPUTE",
+                    "EUR",
+                    "DBU",
+                    {"default": Decimal(0.5)},
+                    datetime.strptime("2024-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"),
+                    None,
+                )
+            ],
+            list_prices_schema,
+        )
+    )
+
+    billing_df = CostCalculatorIO.prepare_billing(
+        spark_session.createDataFrame(
+            [
+                (
+                    "1",
+                    "account1",
+                    "workspace1",
+                    "PREMIUM_SQL_PRO_COMPUTE",
+                    "AZURE",
+                    datetime.strptime(
+                        "2024-01-25 01:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime(
+                        "2024-01-25 23:06:06.944", "%Y-%m-%d %H:%M:%S.%f"
+                    ),
+                    datetime.strptime("2024-01-25", "%Y-%m-%d"),
+                    None,
+                    "DBU",
+                    Decimal(100.0),
+                    {"warehouse_id": "warehouse1"},
+                )
+            ],
+            system_billing_usage_schema,
+        )
+    )
+
+    cloud_infra_cost_df = CostCalculatorIO.prepare_cloud_infra_cost(
+        spark_session.createDataFrame([], system_cloud_infra_costs_schema)
+    )
+
+    expected_cost_agg_day_df = spark_session.createDataFrame(
+        [
+            (
+                "account1",
+                "workspace1",
+                "AZURE",
+                datetime.strptime("2024-01-25", "%Y-%m-%d"),
+                "warehouse1",
+                "user1@databricks.com",
+                "user1",
+                Decimal(10.00),
+                Decimal(10.00),
+                Decimal(5.00),
+                None,
+                "EUR",
+            ),
+            (
+                "account1",
+                "workspace1",
+                "AZURE",
+                datetime.strptime("2024-01-25", "%Y-%m-%d"),
+                "warehouse1",
+                "user2@databricks.com",
+                "user2",
+                Decimal(90.00),
+                Decimal(90.00),
+                Decimal(45.00),
+                None,
+                "EUR",
+            )
+        ],
+        cost_agg_day_schema,
+    )
+
+    cost_agg_day_df = CostCalculator().calculate_cost_agg_day(
+        weights, queries_df, list_prices_df, billing_df, cloud_infra_cost_df
+    )
+    cost_agg_day_df.show()
+    assert_df_equality(
+        cost_agg_day_df,
+        expected_cost_agg_day_df,
+        ignore_nullable=True,
+        ignore_column_order=True,
+        ignore_row_order=True,
+    )
