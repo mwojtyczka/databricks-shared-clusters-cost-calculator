@@ -327,7 +327,7 @@ class CostCalculator:
         list_prices_df: DataFrame,
         billing_df: DataFrame,
         cloud_infra_cost_df: DataFrame,
-    ) -> DataFrame:
+    ) -> DataFrame:  # pylint: disable=too-many-arguments
         """
         Calculate cost aggregated per day.
         @param metric_to_weight_map: DataFrame containing metrics to weights map
